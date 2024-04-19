@@ -1,9 +1,10 @@
 """This file contains the model for the Employee"""
 
 from django.db import models
-from root.utils import UploadToPathAndRename
+from django.core.exceptions import ValidationError
 
-from organization.models import Organization, Designation
+from root.utils import UploadToPathAndRename
+from organization.models import Organization, Designation, Department
 
 
 class Employee(models.Model):
@@ -13,6 +14,7 @@ class Employee(models.Model):
 
     name = models.CharField(max_length=200)
     organization = models.ForeignKey(Organization, on_delete=models.CASCADE)
+    department = models.ForeignKey(Department, on_delete=models.CASCADE)
     designation = models.ForeignKey(Designation, on_delete=models.CASCADE)
     email = models.EmailField(unique=True)
     contact_no = models.CharField(max_length=15)
@@ -21,8 +23,24 @@ class Employee(models.Model):
     )
     is_available = models.BooleanField(default=True)
 
-    def __str__(self):
-        return str(self.name)
+    def clean(self):
+        """
+        Overriding the clean method to validate the designation.
+        """
+        if self.department.organization != self.organization:
+            raise ValidationError(
+                "Designation's department must match the selected organization."
+            )
+
+        if self.designation.department != self.department:
+            raise ValidationError("Designation's must match the selected department.")
+
+    def save(self, *args, **kwargs):
+        """
+        Overriding the save method to set the organization and department based on the designation.
+        """
+        self.full_clean()
+        super().save(*args, **kwargs)
 
     def delete(self, *args, **kwargs):
         """
@@ -32,9 +50,12 @@ class Employee(models.Model):
         if self.profile_picture:
             storage, path = (
                 self.profile_picture.storage,
-                self.profile_picture.path,  # pylint: disable=no-member
+                self.profile_picture.path,
             )
             if storage.exists(path):
                 storage.delete(path)
 
         super().delete(*args, **kwargs)
+
+    def __str__(self):
+        return str(self.name)
