@@ -27,11 +27,10 @@ admin.site.index_title = "Site administration"
 admin.site.description = "Digital Citizen Charter ( डिजिटल नागरिक वडापत्र )"
 
 
-urlpatterns = (
-    [
-        path("admin/", admin.site.urls),
-        path("helper/", include("organization.urls")),
-    ]
-    + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
-    + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
-)
+urlpatterns = [
+    path("admin/", admin.site.urls),
+    path("helper/", include("organization.urls")),
+]
+
+urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
