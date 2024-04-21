@@ -3,7 +3,7 @@ function get_designation_for_department(department_id) {
     (function ($) {
         var selected_value = $("#id_designation").val();
 
-        $.getJSON("helper/get_designation_for_department", { department_id: department_id }, function (res, textStatus) {
+        $.getJSON("/helper/get_designation_for_department", { department_id: department_id }, function (res, textStatus) {
             var options = '<option value="" selected="selected">---------</option>';
             $.each(res.data, function (i, item) {
                 options += '<option value="' + item.id + '">' + item.name + '</option>';
@@ -15,5 +15,5 @@ function get_designation_for_department(department_id) {
                     $(this).attr("selected", "selected");
             });
         });
-    })(jQuery);
+    })(django.jQuery);
 }

@@ -3,7 +3,7 @@ function get_department_for_organization(organization_id) {
     (function ($) {
         var selected_value = $("#id_department").val();
 
-        $.getJSON("helper/get_department_for_organization", { organization_id: organization_id }, function (res, textStatus) {
+        $.getJSON("/helper/get_department_for_organization", { organization_id: organization_id }, function (res, textStatus) {
             var options = '<option value="" selected="selected">---------</option>';
             $.each(res.data, function (i, item) {
                 options += '<option value="' + item.id + '">' + item.name + '</option>';
@@ -15,5 +15,5 @@ function get_department_for_organization(organization_id) {
                     $(this).attr("selected", "selected");
             });
         });
-    })(jQuery);
+    })(django.jQuery);
 }
