@@ -19,7 +19,9 @@ from django.contrib import admin
 from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
+from strawberry.django.views import GraphQLView
 
+from .schema import schema
 
 admin.site.site_title = "Digital Citizen Charter (DCC) administration"
 admin.site.site_header = "Digital Citizen Charter (DCC)"
@@ -30,6 +32,7 @@ admin.site.description = "Digital Citizen Charter ( डिजिटल नाग
 urlpatterns = [
     path("admin/", admin.site.urls),
     path("helper/", include("organization.urls")),
+    path("", GraphQLView.as_view(schema=schema), name="graphql"),
 ]
 
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
