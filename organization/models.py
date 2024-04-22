@@ -15,7 +15,7 @@ class Organization(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     name = models.CharField(max_length=200, blank=False, null=False)
     tag_line = models.CharField(max_length=200, blank=True, null=False)
-    description = models.CharField(max_length=200, blank=False, null=False)
+    description = models.TextField(blank=False, null=False)
 
     province = models.CharField(
         max_length=200, choices=PROVINCE_CHOICES, blank=False, null=False

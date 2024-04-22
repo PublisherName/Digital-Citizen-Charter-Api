@@ -12,7 +12,7 @@ class Query:
     """Query type for the Organization app."""
 
     @strawberry.field
-    def organizations(
+    def get_organizations_by_id(
         self, organization_id: Optional[int] = None
     ) -> List[OrganizationType]:
         """
@@ -23,7 +23,9 @@ class Query:
         return Organization.objects.all()
 
     @strawberry.field
-    def departments(self, department_id: Optional[int] = None) -> List[DepartmentType]:
+    def get_departments_by_id(
+        self, department_id: Optional[int] = None
+    ) -> List[DepartmentType]:
         """
         Fetches all the departments.
         """
@@ -32,7 +34,16 @@ class Query:
         return Department.objects.all()
 
     @strawberry.field
-    def designations(
+    def get_departments_by_organization(
+        self, organization_id: int
+    ) -> List[DepartmentType]:
+        """
+        Fetches all the departments of an organization.
+        """
+        return Department.objects.filter(organization_id=organization_id)
+
+    @strawberry.field
+    def get_designations_by_id(
         self, designation_id: Optional[int] = None
     ) -> List[DesignationType]:
         """
@@ -41,6 +52,24 @@ class Query:
         if designation_id:
             return Designation.objects.filter(id=designation_id)
         return Designation.objects.all()
+
+    @strawberry.field
+    def get_designations_by_organization(
+        self, organization_id: int
+    ) -> List[DesignationType]:
+        """
+        Fetches all the designations of an organization.
+        """
+        return Designation.objects.filter(organization_id=organization_id)
+
+    @strawberry.field
+    def get_designations_by_department(
+        self, department_id: int
+    ) -> List[DesignationType]:
+        """
+        Fetches all the designations of a department.
+        """
+        return Designation.objects.filter(department_id=department_id)
 
 
 schema = strawberry.Schema(query=Query)
