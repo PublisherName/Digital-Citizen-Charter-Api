@@ -64,5 +64,6 @@ class DesignationType:
     title: str
     description: str
     priority: int
+    allow_multiple_employees: bool
     organization: OrganizationType
     department: DepartmentType
