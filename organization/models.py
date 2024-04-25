@@ -61,6 +61,7 @@ class Designation(models.Model):
     title = models.CharField(max_length=200, blank=False, null=False)
     description = models.TextField(blank=False, null=False)
     priority = models.IntegerField(blank=False, null=False)
+    allow_multiple_employees = models.BooleanField(default=False)
 
     def clean(self):
         if self.organization != self.department.organization:

@@ -35,6 +35,12 @@ class Employee(models.Model):
         if self.designation.department != self.department:
             raise ValidationError("Designation's must match the selected department.")
 
+        if self.designation.allow_multiple_employees is False:
+            if Employee.objects.filter(designation=self.designation).exists():
+                raise ValidationError(
+                    f"The employee has already been assigned to the {self.designation} role."
+                )
+
     def save(self, *args, **kwargs):
         """
         Overriding the save method to set the organization and department based on the designation.
