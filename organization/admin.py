@@ -1,30 +1,9 @@
 """ This file is used to register the models in the admin panel. """
 
 from django.contrib import admin
-from django import forms
-from .models import Organization, Department, Designation
 
-
-class DesignationForm(forms.ModelForm):
-    """
-    DesignationForm class is used to customize the form for the Designation model.
-    """
-
-    class Meta:
-        """
-        Meta class is used to define the model and fields for the form.
-        """
-
-        model = Designation
-        fields = "__all__"
-        widgets = {
-            "organization": forms.Select(
-                attrs={
-                    "onchange": "get_department_for_organization(this.value);",
-                    "autocomplete": "off",
-                }
-            )
-        }
+from .forms import DesignationForm
+from .models import Department, Designation, Organization
 
 
 class DesignationAdmin(admin.ModelAdmin):
@@ -33,13 +12,6 @@ class DesignationAdmin(admin.ModelAdmin):
     """
 
     form = DesignationForm
-
-    class Media:
-        """
-        This class is used to add custom javascript files to the admin panel.
-        """
-
-        js = ("js/chained/get_department_for_organization.js",)
 
     list_display = ("title", "description", "priority", "organization", "department")
 
