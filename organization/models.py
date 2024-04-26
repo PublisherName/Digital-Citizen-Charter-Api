@@ -2,6 +2,7 @@
 
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
+from django.core.files.storage import default_storage
 from django.db import models
 
 from root.utils import UploadToPathAndRename
@@ -30,6 +31,25 @@ class Organization(models.Model):
     website = models.CharField(max_length=200, blank=False, null=False)
     logo = models.ImageField(upload_to=UploadToPathAndRename("logos"), blank=True, null=True)
     is_active = models.BooleanField(default=True)
+
+    def save(self, *args, **kwargs):
+        self.full_clean()
+        try:
+            old_organization = Organization.objects.get(pk=self.pk)
+            if (
+                old_organization.logo
+                and old_organization.logo != self.logo
+                and default_storage.exists(old_organization.logo.name)
+            ):
+                default_storage.delete(old_organization.logo.name)
+        except Organization.DoesNotExist:
+            pass
+        super().save(*args, **kwargs)
+
+    def delete(self, *args, **kwargs):
+        if self.logo and default_storage.exists(self.logo.name):
+            default_storage.delete(self.logo.name)
+        super().delete(*args, **kwargs)
 
     def __str__(self):
         return str(self.name)
