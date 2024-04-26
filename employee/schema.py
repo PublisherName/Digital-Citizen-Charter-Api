@@ -1,6 +1,7 @@
-""" This module contains the schema for the employee app. """
+"""This module contains the schema for the employee app."""
 
 from typing import List, Optional
+
 import strawberry
 
 from .models import Employee
@@ -12,9 +13,7 @@ class Query:
     """Query type for the Organization app."""
 
     @strawberry.field
-    def get_employees_by_id(
-        self, employee_id: Optional[int] = None
-    ) -> List[EmployeeType]:
+    def get_employees_by_id(self, employee_id: Optional[int] = None) -> List[EmployeeType]:
         """
         Fetches all the organizations.
         """

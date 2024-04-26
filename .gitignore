@@ -93,10 +93,6 @@ coverage.xml
 profile_default/
 ipython_config.py
 
-# pyenv #
-#########
-.python-version
-
 # celery #
 ##########
 celerybeat-schedule

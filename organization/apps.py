@@ -1,4 +1,4 @@
-""" This module contains the configuration of the organization app. """
+"""This module contains the configuration of the organization app."""
 
 from django.apps import AppConfig
 

@@ -30,4 +30,4 @@ Digital Citizen Charter (DCC) is a digital version of the Citizen Charter. It is
 
 ## Formatter Used
 
-https://marketplace.visualstudio.com/items?itemName=ms-python.black-formatter
+https://marketplace.visualstudio.com/items?itemName=charliermarsh.ruff

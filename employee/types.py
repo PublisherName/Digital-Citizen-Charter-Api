@@ -1,8 +1,9 @@
-""" This module contains the types for the employee app. """
+"""This module contains the types for the employee app."""
 
 import strawberry
 
-from organization.types import OrganizationType, DepartmentType, DesignationType
+from organization.types import DepartmentType, DesignationType, OrganizationType
+
 from .models import Employee
 
 

@@ -1,7 +1,8 @@
-""" This module contains the types for the organization app. """
+"""This module contains the types for the organization app."""
 
 import strawberry
-from .models import Organization, User, Department, Designation
+
+from .models import Department, Designation, Organization, User
 
 
 @strawberry.django.type(User)

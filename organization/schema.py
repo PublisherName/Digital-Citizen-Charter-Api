@@ -1,10 +1,11 @@
-""" This module contains the schema for the organization app. """
+"""This module contains the schema for the organization app."""
 
 from typing import List, Optional
+
 import strawberry
 
-from .models import Organization, Department, Designation
-from .types import OrganizationType, DepartmentType, DesignationType
+from .models import Department, Designation, Organization
+from .types import DepartmentType, DesignationType, OrganizationType
 
 
 @strawberry.type
@@ -23,9 +24,7 @@ class Query:
         return Organization.objects.all()
 
     @strawberry.field
-    def get_departments_by_id(
-        self, department_id: Optional[int] = None
-    ) -> List[DepartmentType]:
+    def get_departments_by_id(self, department_id: Optional[int] = None) -> List[DepartmentType]:
         """
         Fetches all the departments.
         """
@@ -34,9 +33,7 @@ class Query:
         return Department.objects.all()
 
     @strawberry.field
-    def get_departments_by_organization(
-        self, organization_id: int
-    ) -> List[DepartmentType]:
+    def get_departments_by_organization(self, organization_id: int) -> List[DepartmentType]:
         """
         Fetches all the departments of an organization.
         """
@@ -54,18 +51,14 @@ class Query:
         return Designation.objects.all()
 
     @strawberry.field
-    def get_designations_by_organization(
-        self, organization_id: int
-    ) -> List[DesignationType]:
+    def get_designations_by_organization(self, organization_id: int) -> List[DesignationType]:
         """
         Fetches all the designations of an organization.
         """
         return Designation.objects.filter(organization_id=organization_id)
 
     @strawberry.field
-    def get_designations_by_department(
-        self, department_id: int
-    ) -> List[DesignationType]:
+    def get_designations_by_department(self, department_id: int) -> List[DesignationType]:
         """
         Fetches all the designations of a department.
         """

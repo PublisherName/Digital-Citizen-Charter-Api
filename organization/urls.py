@@ -1,6 +1,7 @@
-""" This file contains the URL patterns for the organization app. """
+"""This file contains the URL patterns for the organization app."""
 
 from django.urls import path
+
 from . import views
 
 urlpatterns = [

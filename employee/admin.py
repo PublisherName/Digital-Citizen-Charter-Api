@@ -1,4 +1,4 @@
-""" Registering the model with the Django admin site. """
+"""Registering the model with the Django admin site."""
 
 from django.contrib import admin
 

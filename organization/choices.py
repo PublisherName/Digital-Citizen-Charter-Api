@@ -1,4 +1,4 @@
-""" This file contains the choices for the models """
+"""This file contains the choices for the models"""
 
 PROVINCE_CHOICES = [
     ("Koshi", "Koshi"),

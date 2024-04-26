@@ -1,11 +1,11 @@
 """This file contains the model for the Employee"""
 
-from django.db import models
 from django.core.exceptions import ValidationError
 from django.core.files.storage import default_storage
+from django.db import models
 
+from organization.models import Department, Designation, Organization
 from root.utils import UploadToPathAndRename
-from organization.models import Organization, Designation, Department
 
 
 class Employee(models.Model):
@@ -29,9 +29,7 @@ class Employee(models.Model):
         Overriding the clean method to validate the designation.
         """
         if self.department.organization != self.organization:
-            raise ValidationError(
-                "Designation's department must match the selected organization."
-            )
+            raise ValidationError("Designation's department must match the selected organization.")
 
         if self.designation.department != self.department:
             raise ValidationError("Designation's must match the selected department.")
@@ -57,9 +55,8 @@ class Employee(models.Model):
         Overriding the delete method to delete the profile picture from the storage.
         """
 
-        if self.profile_picture:
-            if default_storage.exists(self.profile_picture.name):
-                default_storage.delete(self.profile_picture.name)
+        if self.profile_picture and default_storage.exists(self.profile_picture.name):
+            default_storage.delete(self.profile_picture.name)
 
         super().delete(*args, **kwargs)
 

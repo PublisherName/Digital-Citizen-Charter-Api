@@ -1,4 +1,4 @@
-""" This module is used to define the form for the Employee model. """
+"""This module is used to define the form for the Employee model."""
 
 from django import forms
 

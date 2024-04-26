@@ -1,7 +1,8 @@
-""" This file contains the views for the organization app. """
+"""This file contains the views for the organization app."""
 
-from django.http import JsonResponse
 from django.contrib.auth.decorators import login_required
+from django.http import JsonResponse
+
 from .models import Department, Designation
 
 
@@ -14,9 +15,7 @@ def department_for_organization(request):
         and request.GET["organization_id"] != ""
         and request.GET["organization_id"].isdigit()
     ):
-        department_list = Department.objects.filter(
-            organization=request.GET["organization_id"]
-        )
+        department_list = Department.objects.filter(organization=request.GET["organization_id"])
         return JsonResponse(
             {
                 "data": [
@@ -38,9 +37,7 @@ def get_designation_for_department(request):
         and request.GET["department_id"] != ""
         and request.GET["department_id"].isdigit()
     ):
-        designation_list = Designation.objects.filter(
-            department=request.GET["department_id"]
-        )
+        designation_list = Designation.objects.filter(department=request.GET["department_id"])
         return JsonResponse(
             {
                 "data": [

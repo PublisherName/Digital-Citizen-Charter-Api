@@ -1,6 +1,7 @@
-""" This module is used to define the forms for the organization app. """
+"""This module is used to define the forms for the organization app."""
 
 from django import forms
+
 from .models import Designation
 
 

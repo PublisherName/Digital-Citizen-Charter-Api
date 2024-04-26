@@ -1,9 +1,11 @@
-""" This file contains the models for the organization app. """
+"""This file contains the models for the organization app."""
 
-from django.db import models
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
+from django.db import models
+
 from root.utils import UploadToPathAndRename
+
 from .choices import PROVINCE_CHOICES
 
 User = get_user_model()
@@ -19,18 +21,14 @@ class Organization(models.Model):
     tag_line = models.CharField(max_length=200, blank=True, null=False)
     description = models.TextField(blank=False, null=False)
 
-    province = models.CharField(
-        max_length=200, choices=PROVINCE_CHOICES, blank=False, null=False
-    )
+    province = models.CharField(max_length=200, choices=PROVINCE_CHOICES, blank=False, null=False)
     district = models.CharField(max_length=200, blank=False, null=False)
     municipality = models.CharField(max_length=200, blank=False, null=False)
     ward_no = models.CharField(max_length=200, blank=False, null=False)
 
     contact_no = models.CharField(max_length=15, blank=False, null=False)
     website = models.CharField(max_length=200, blank=False, null=False)
-    logo = models.ImageField(
-        upload_to=UploadToPathAndRename("logos"), blank=True, null=True
-    )
+    logo = models.ImageField(upload_to=UploadToPathAndRename("logos"), blank=True, null=True)
     is_active = models.BooleanField(default=True)
 
     def __str__(self):
@@ -67,9 +65,7 @@ class Designation(models.Model):
 
     def clean(self):
         if self.organization != self.department.organization:
-            raise ValidationError(
-                f"Your Organization doesn't have {self.department} department."
-            )
+            raise ValidationError(f"Your Organization doesn't have {self.department} department.")
 
     def __str__(self):
         return str(self.title)

@@ -1,4 +1,4 @@
-""" This file contains the configuration for the Employee app. """
+"""This file contains the configuration for the Employee app."""
 
 from django.apps import AppConfig
 

@@ -1,0 +1,40 @@
+[project]
+name = "Digital Citizen Charter ( डिजिटल नागरिक वडापत्र ) "
+version = "0.0.1"
+description = "Digital Citizen Charter ( डिजिटल नागरिक वडापत्र ) for Municipalities and government offices."
+readme = "README.md"
+authors = [
+    { name = "Subash Ghimire", email = "dcc@subashghimire.info.np" },
+]
+maintainers = [
+    { name = "Subash Ghimire", email = "dcc@subashghimire.info.np" },
+]
+classifiers = [
+    "Framework :: Django",
+    "Programming Language :: Python :: 3",
+]
+
+license = { text = "MIT" }
+requires-python = ">=3.11"
+keywords = ["Django", "Digital Citizen Charter", "Nepal", "Municipality", "Government"]
+
+
+[project.urls]
+issues = "https://github.com/PublisherName/Digital-Citizen-Charter-Api/issues"
+homepage = "https://dcc.subashghimire.info.np/"
+repository = "https://github.com/PublisherName/Digital-Citizen-Charter-Api"
+
+[tool.ruff]
+line-length = 99
+
+[tool.ruff.lint]
+extend-select = ["C", "E", "F","I001","Q","SIM", "T", "W"]
+ignore = ["F401"]
+exclude = ["**/migrations/*.py"]
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+docstring-code-format = true
+docstring-code-line-length = 20
+
