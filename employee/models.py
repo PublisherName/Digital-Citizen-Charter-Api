@@ -3,7 +3,7 @@ from django.core.files.storage import default_storage
 from django.db import models
 
 from organization.models import Department, Designation, Organization
-from root.utils import UploadToPathAndRename, download_image_from_url
+from root.utils import UploadToPathAndRename
 
 
 class Employee(models.Model):
@@ -17,12 +17,10 @@ class Employee(models.Model):
     profile_picture = models.ImageField(
         upload_to=UploadToPathAndRename("profile_pictures"), blank=True, null=True
     )
-    profile_picture_url = models.URLField(blank=True, null=True)
     is_available = models.BooleanField(default=True)
 
     def clean(self):
         self.validate_designation()
-        self.download_profile_picture()
 
     def save(self, *args, **kwargs):
         self.full_clean()
@@ -56,12 +54,6 @@ class Employee(models.Model):
             raise ValidationError(
                 f"The employee has already been assigned to the {self.designation} role."
             )
-
-    def download_profile_picture(self):
-        if self.profile_picture_url:
-            image_file = download_image_from_url(self.profile_picture_url, f"{self.name}.jpg")
-            self.profile_picture.save(f"{self.name}.jpg", image_file, save=False)
-            self.profile_picture_url = None
 
     def __str__(self):
         return str(self.name)
