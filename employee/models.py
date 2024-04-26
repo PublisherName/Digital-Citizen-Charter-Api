@@ -17,6 +17,7 @@ class Employee(models.Model):
     organization = models.ForeignKey(Organization, on_delete=models.CASCADE)
     department = models.ForeignKey(Department, on_delete=models.CASCADE)
     designation = models.ForeignKey(Designation, on_delete=models.CASCADE)
+    description = models.CharField(max_length=200, blank=True, null=True)
     email = models.EmailField(unique=True)
     contact_no = models.CharField(max_length=15)
     profile_picture = models.ImageField(
