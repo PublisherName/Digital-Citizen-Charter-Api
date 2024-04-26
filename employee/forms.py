@@ -20,7 +20,18 @@ class EmployeeForm(forms.ModelForm):
         """
 
         model = Employee
-        fields = "__all__"
+        fields = [
+            "name",
+            "organization",
+            "department",
+            "designation",
+            "description",
+            "email",
+            "contact_no",
+            "profile_picture",
+            "profile_picture_url",
+            "is_available",
+        ]
         widgets = {
             "organization": forms.Select(
                 attrs={
