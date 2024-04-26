@@ -2,6 +2,7 @@
 
 from django.db import models
 from django.core.exceptions import ValidationError
+from django.core.files.storage import default_storage
 
 from root.utils import UploadToPathAndRename
 from organization.models import Organization, Designation, Department
@@ -54,12 +55,8 @@ class Employee(models.Model):
         """
 
         if self.profile_picture:
-            storage, path = (
-                self.profile_picture.storage,
-                self.profile_picture.path,
-            )
-            if storage.exists(path):
-                storage.delete(path)
+            if default_storage.exists(self.profile_picture.name):
+                default_storage.delete(self.profile_picture.name)
 
         super().delete(*args, **kwargs)
 
