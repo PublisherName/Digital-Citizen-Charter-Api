@@ -18,6 +18,7 @@ class EmployeeType:
     email: str
     contact_no: str
     profile_picture: str
+    description: str
     organization: OrganizationType
     department: DepartmentType
     designation: DesignationType

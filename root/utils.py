@@ -21,3 +21,32 @@ class UploadToPathAndRename:
         extension = os.path.splitext(filename)[1]
         filename = hashlib.sha256(filename.encode()).hexdigest()
         return os.path.join(self.path, filename + extension)
+
+
+def download_image_from_url(url, filename):
+    from io import BytesIO
+
+    import requests
+    from django.core.exceptions import ValidationError
+    from django.core.files import File
+    from PIL import Image
+
+    try:
+        response = requests.get(url, timeout=10)
+    except requests.RequestException as e:
+        raise ValidationError(f"Error occurred while trying to download the image: {str(e)}")
+
+    if response.status_code != 200:
+        raise ValidationError(
+            f"Unable to download image, server responded with status code: {response.status_code}"
+        )
+
+    try:
+        image = Image.open(BytesIO(response.content))
+    except IOError as e:
+        raise ValidationError(f"Error occurred while trying to open the image: {str(e)}")
+
+    image_io = BytesIO()
+    image.save(image_io, format="JPEG")
+    image_file = File(image_io, name=filename)
+    return image_file

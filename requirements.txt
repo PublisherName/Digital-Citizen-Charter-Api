@@ -15,7 +15,6 @@ python-dotenv==1.0.1
 python-stdnum==1.20
 pytz==2024.1
 PyYAML==6.0.1
-ruff==0.4.2
 six==1.16.0
 sqlparse==0.4.4
 strawberry-graphql==0.227.2

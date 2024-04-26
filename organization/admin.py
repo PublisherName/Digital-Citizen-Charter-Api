@@ -2,7 +2,7 @@
 
 from django.contrib import admin
 
-from .forms import DesignationForm
+from .forms import DesignationForm, OrganizationForm
 from .models import Department, Designation, Organization
 
 
@@ -20,6 +20,8 @@ class OrganizationAdmin(admin.ModelAdmin):
     """
     OrganizationAdmin class is used to customize the admin panel for the Organization model.
     """
+
+    form = OrganizationForm
 
     list_display = (
         "name",
