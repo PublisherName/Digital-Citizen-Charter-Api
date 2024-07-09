@@ -22,3 +22,14 @@ class EmployeeType:
     organization: OrganizationType
     department: DepartmentType
     designation: DesignationType
+
+    @strawberry.field
+    def profile_picture(self, info) -> str:
+        """
+        Returns the profile picture URL. If the employee does not have a profile picture,
+        returns a URL to the default profile picture.
+        """
+        if self.profile_picture:
+            return self.profile_picture.url
+        else:
+            return "/static/images/default_profile_picture.jpg"
