@@ -12,7 +12,7 @@ class Employee(models.Model):
     department = models.ForeignKey(Department, on_delete=models.CASCADE)
     designation = models.ForeignKey(Designation, on_delete=models.CASCADE)
     description = models.CharField(max_length=200, blank=True, null=True)
-    email = models.EmailField(unique=True)
+    email = models.EmailField(unique=True, blank=True, null=True)
     contact_no = models.CharField(max_length=15)
     profile_picture = models.ImageField(
         upload_to=UploadToPathAndRename("profile_pictures"), blank=True, null=True
