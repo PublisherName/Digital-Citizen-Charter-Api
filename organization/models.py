@@ -46,11 +46,6 @@ class Organization(models.Model):
             pass
         super().save(*args, **kwargs)
 
-    def delete(self, *args, **kwargs):
-        if self.logo and default_storage.exists(self.logo.name):
-            default_storage.delete(self.logo.name)
-        super().delete(*args, **kwargs)
-
     def __str__(self):
         return str(self.name)
 
