@@ -36,11 +36,6 @@ class Employee(models.Model):
             pass
         super().save(*args, **kwargs)
 
-    def delete(self, *args, **kwargs):
-        if self.profile_picture and default_storage.exists(self.profile_picture.name):
-            default_storage.delete(self.profile_picture.name)
-        super().delete(*args, **kwargs)
-
     def validate_designation(self):
         if self.department.organization != self.organization:
             raise ValidationError("Designation's department must match the selected organization.")
