@@ -28,7 +28,7 @@ class Organization(models.Model):
     ward_no = models.CharField(max_length=200, blank=False, null=False)
 
     contact_no = models.CharField(max_length=15, blank=False, null=False)
-    website = models.CharField(max_length=200, blank=False, null=False)
+    website = models.URLField(max_length=200, blank=False, null=False)
     logo = models.ImageField(upload_to=UploadToPathAndRename("logos"), blank=True, null=True)
     is_active = models.BooleanField(default=True)
 
@@ -44,6 +44,8 @@ class Organization(models.Model):
                 default_storage.delete(old_organization.logo.name)
         except Organization.DoesNotExist:
             pass
+        except Exception as e:
+            raise ValidationError(f"An error occurred: {e}")
         super().save(*args, **kwargs)
 
     def __str__(self):
