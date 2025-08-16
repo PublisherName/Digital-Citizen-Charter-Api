@@ -6,6 +6,7 @@ from .forms import DesignationForm, OrganizationForm
 from .models import Department, Designation, Organization
 
 
+@admin.register(Designation)
 class DesignationAdmin(admin.ModelAdmin):
     """
     DesignationAdmin class is used to customize the admin panel for the Designation model.
@@ -16,6 +17,7 @@ class DesignationAdmin(admin.ModelAdmin):
     list_display = ("title", "description", "priority", "organization", "department")
 
 
+@admin.register(Organization)
 class OrganizationAdmin(admin.ModelAdmin):
     """
     OrganizationAdmin class is used to customize the admin panel for the Organization model.
@@ -33,14 +35,10 @@ class OrganizationAdmin(admin.ModelAdmin):
     )
 
 
+@admin.register(Department)
 class DepartmentAdmin(admin.ModelAdmin):
     """
     DepartmentAdmin class is used to customize the admin panel for the Department model.
     """
 
     list_display = ("name", "organization", "contact_no", "email", "is_active")
-
-
-admin.site.register(Organization, OrganizationAdmin)
-admin.site.register(Department, DepartmentAdmin)
-admin.site.register(Designation, DesignationAdmin)

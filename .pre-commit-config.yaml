@@ -1,0 +1,71 @@
+ci:
+  autofix_commit_msg: |
+    ci: auto fixes from pre-commit hooks
+
+    For more information, see https://pre-commit.ci
+  autofix_prs: false
+  autoupdate_commit_msg: "ci: pre-commit autoupdate"
+  autoupdate_schedule: monthly
+
+repos:
+  # Code modernization for Python
+  - repo: https://github.com/asottile/pyupgrade
+    rev: v3.20.0
+    hooks:
+      - id: pyupgrade
+        args: ["--py37-plus"]
+
+  # Django-specific upgrade assistance
+  - repo: https://github.com/adamchainz/django-upgrade
+    rev: "1.25.0"
+    hooks:
+      - id: django-upgrade
+        args: [--target-version, "5.2"]
+
+  # Python code formatting and linting
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.12.9
+    hooks:
+      - id: ruff
+        args: [--fix, --exit-non-zero-on-fix]
+      - id: ruff-format
+
+  # General-purpose checks
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v6.0.0
+    hooks:
+      # Conflict and debug checks
+      - id: check-merge-conflict        # Check for unresolved merge conflicts
+      - id: debug-statements            # Prevent accidental debug print statements
+      # Code format and syntax consistency
+      - id: mixed-line-ending           # Enforce consistent line endings
+      - id: trailing-whitespace         # Remove trailing whitespace
+      - id: end-of-file-fixer           # Ensure newline at end of file
+      # JSON, TOML, and XML validation
+      - id: check-json                  # Validate JSON files
+      - id: check-toml                  # Validate TOML files
+      - id: check-xml                   # Validate XML files
+      # Additional checks for best practices
+      - id: check-builtin-literals      # Enforce built-in literals
+      - id: check-case-conflict         # Avoid case-sensitive file conflicts
+      - id: check-docstring-first       # Ensure docstrings appear first in functions
+      - id: detect-private-key          # Detect committed private keys
+
+  # Spelling checks
+  - repo: https://github.com/codespell-project/codespell
+    rev: v2.4.1
+    hooks:
+      - id: codespell
+
+  # YAML linting
+  - repo: https://github.com/adrienverge/yamllint
+    rev: v1.37.1
+    hooks:
+      - id: yamllint
+
+  # Django linting and formatting
+  - repo: https://github.com/Riverside-Healthcare/djLint
+    rev: v1.36.4
+    hooks:
+      - id: djlint-reformat-django      # Format Django templates
+      - id: djlint-django               # Lint Django templates

@@ -1,0 +1,31 @@
+extends: default
+
+rules:
+  line-length:
+    max: 140
+    level: error
+  braces:
+    max-spaces-inside: 1
+    level: error
+  brackets:
+    max-spaces-inside: 1
+    level: error
+  colons:
+    max-spaces-after: -1
+    level: error
+  commas:
+    max-spaces-after: -1
+    level: error
+  comments: disable
+  comments-indentation: disable
+  document-start: disable
+  empty-lines:
+    max: 2
+    level: error
+  key-duplicates: enable
+  truthy: disable
+  indentation:
+    spaces: 2
+    indent-sequences: consistent
+  new-line-at-end-of-file: enable
+  trailing-spaces: enable
