@@ -28,6 +28,13 @@ dependencies = [
     "yamllint>=1.37.1",
 ]
 
+[dependency-groups]
+dev = [
+    "djlint>=1.36.4",
+    "ruff>=0.12.9",
+    "yamllint>=1.37.1",
+]
+
 [project.urls]
 issues = "https://github.com/PublisherName/Digital-Citizen-Charter-Api/issues"
 homepage = "https://dcc.subashghimire.info.np/"

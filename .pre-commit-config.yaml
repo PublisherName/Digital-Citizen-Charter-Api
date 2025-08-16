@@ -35,21 +35,21 @@ repos:
     rev: v6.0.0
     hooks:
       # Conflict and debug checks
-      - id: check-merge-conflict        # Check for unresolved merge conflicts
-      - id: debug-statements            # Prevent accidental debug print statements
+      - id: check-merge-conflict
+      - id: debug-statements
       # Code format and syntax consistency
-      - id: mixed-line-ending           # Enforce consistent line endings
-      - id: trailing-whitespace         # Remove trailing whitespace
-      - id: end-of-file-fixer           # Ensure newline at end of file
+      - id: mixed-line-ending
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
       # JSON, TOML, and XML validation
-      - id: check-json                  # Validate JSON files
-      - id: check-toml                  # Validate TOML files
-      - id: check-xml                   # Validate XML files
+      - id: check-json
+      - id: check-toml
+      - id: check-xml
       # Additional checks for best practices
-      - id: check-builtin-literals      # Enforce built-in literals
-      - id: check-case-conflict         # Avoid case-sensitive file conflicts
-      - id: check-docstring-first       # Ensure docstrings appear first in functions
-      - id: detect-private-key          # Detect committed private keys
+      - id: check-builtin-literals
+      - id: check-case-conflict
+      - id: check-docstring-first
+      - id: detect-private-key
 
   # Spelling checks
   - repo: https://github.com/codespell-project/codespell
@@ -67,5 +67,12 @@ repos:
   - repo: https://github.com/Riverside-Healthcare/djLint
     rev: v1.36.4
     hooks:
-      - id: djlint-reformat-django      # Format Django templates
-      - id: djlint-django               # Lint Django templates
+      - id: djlint-reformat-django # Format Django templates
+      - id: djlint-django # Lint Django templates
+
+  # Ruff linting and formatting
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.12.9
+    hooks:
+      - id: ruff-check
+      - id: ruff-format
