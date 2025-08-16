@@ -1,5 +1,5 @@
 [project]
-name = "Digital Citizen Charter ( डिजिटल नागरिक वडापत्र ) "
+name = "Digital_Citizen_Charter"
 version = "0.0.1"
 description = "Digital Citizen Charter ( डिजिटल नागरिक वडापत्र ) for Municipalities and government offices."
 readme = "README.md"
@@ -14,10 +14,19 @@ classifiers = [
     "Programming Language :: Python :: 3",
 ]
 
+
 license = { text = "MIT" }
 requires-python = ">=3.11"
 keywords = ["Django", "Digital Citizen Charter", "Nepal", "Municipality", "Government"]
-
+dependencies = [
+    "django>=5.2.5",
+    "dotenv>=0.9.9",
+    "isort>=6.0.1",
+    "pillow>=11.3.0",
+    "pre-commit>=4.3.0",
+    "strawberry-graphql-django>=0.65.1",
+    "yamllint>=1.37.1",
+]
 
 [project.urls]
 issues = "https://github.com/PublisherName/Digital-Citizen-Charter-Api/issues"
@@ -37,4 +46,4 @@ quote-style = "double"
 indent-style = "space"
 docstring-code-format = true
 docstring-code-line-length = 20
-
+exclude = ["**/migrations/*.py"]

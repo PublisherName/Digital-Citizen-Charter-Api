@@ -1,4 +1,4 @@
-""" This file is used by Passenger to serve the Django app. """
+"""This file is used by Passenger to serve the Django app."""
 
 import os
 import sys

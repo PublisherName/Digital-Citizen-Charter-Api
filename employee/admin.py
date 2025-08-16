@@ -6,6 +6,7 @@ from .forms import EmployeeForm
 from .models import Employee
 
 
+@admin.register(Employee)
 class EmployeeAdmin(admin.ModelAdmin):
     """
     EmployeeAdmin class is used to customize the admin panel for the Employee model.
@@ -21,6 +22,3 @@ class EmployeeAdmin(admin.ModelAdmin):
         "contact_no",
         "is_available",
     )
-
-
-admin.site.register(Employee, EmployeeAdmin)

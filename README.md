@@ -14,7 +14,7 @@ Digital Citizen Charter (DCC) is a digital version of the Citizen Charter. It is
 ```python3 -m venv .venv```
 
 ```source .venv/bin/activate```
-    
+
 ```pip install -r requirements.txt```
 
 ## Migration
@@ -26,8 +26,3 @@ Digital Citizen Charter (DCC) is a digital version of the Citizen Charter. It is
 ## Usage
 
 ```python manage.py runserver```
-
-
-## Formatter Used
-
-https://marketplace.visualstudio.com/items?itemName=charliermarsh.ruff

@@ -43,7 +43,7 @@ def download_image_from_url(url, filename):
 
     try:
         image = Image.open(BytesIO(response.content))
-    except IOError as e:
+    except OSError as e:
         raise ValidationError(f"Error occurred while trying to open the image: {str(e)}")
 
     image_io = BytesIO()
