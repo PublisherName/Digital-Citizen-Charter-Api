@@ -73,16 +73,29 @@ class Designation(models.Model):
     Designation Model represents the post / designation of a employee.
     """
 
-    organization = models.ForeignKey(Organization, on_delete=models.CASCADE)
     department = models.ForeignKey(Department, on_delete=models.CASCADE)
     title = models.CharField(max_length=200, blank=False, null=False)
     description = models.TextField(blank=False, null=False)
     priority = models.IntegerField(blank=False, null=False)
     allow_multiple_employees = models.BooleanField(default=False)
 
+    @property
+    def organization(self):
+        """Return the organization this designation belongs to via department."""
+        try:
+            if hasattr(self, "department_id") and self.department_id:
+                return self.department.organization
+            return None
+        except (AttributeError, Department.DoesNotExist):
+            return None
+
     def clean(self):
-        if self.organization != self.department.organization:
-            raise ValidationError(f"Your Organization doesn't have {self.department} department.")
+        try:
+            has_department = hasattr(self, "department_id") and self.department_id
+            if not has_department:
+                raise ValidationError("Department is required.")
+        except (AttributeError, Department.DoesNotExist):
+            raise ValidationError("Department is required.")
 
     def __str__(self):
         return str(self.title)

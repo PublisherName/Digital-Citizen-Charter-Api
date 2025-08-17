@@ -4,7 +4,7 @@ from django import forms
 
 from root.utils import download_image_from_url
 
-from .models import Designation, Organization
+from .models import Department, Designation, Organization
 
 
 class OrganizationForm(forms.ModelForm):
@@ -53,21 +53,80 @@ class DesignationForm(forms.ModelForm):
     DesignationForm class is used to customize the form for the Designation model.
     """
 
+    organization = forms.ModelChoiceField(
+        queryset=Organization.objects.all(),
+        required=True,
+        widget=forms.Select(
+            attrs={
+                "onchange": "get_department_for_organization(this.value);",
+                "autocomplete": "off",
+            }
+        ),
+    )
+
     class Meta:
         """
         Meta class is used to define the model and fields for the form.
         """
 
         model = Designation
-        fields = "__all__"
-        widgets = {
-            "organization": forms.Select(
-                attrs={
-                    "onchange": "get_department_for_organization(this.value);",
-                    "autocomplete": "off",
+        fields = [
+            "organization",
+            "department",
+            "title",
+            "description",
+            "priority",
+            "allow_multiple_employees",
+        ]
+
+    def __init__(self, *args, **kwargs):
+        """
+        Initialize the form and set the organization field value if editing existing designation.
+        """
+        super().__init__(*args, **kwargs)
+        if self.instance and self.instance.pk and self.instance.department:
+            self.fields["organization"].initial = self.instance.department.organization
+
+    def clean(self):
+        """
+        Validate that the selected department belongs to the selected organization.
+        """
+        cleaned_data = super().clean()
+        organization = cleaned_data.get("organization")
+        department = cleaned_data.get("department")
+
+        if organization and department:
+            if department.organization != organization:
+                raise forms.ValidationError(
+                    {
+                        "department": (
+                            f"The selected department '{department.name}' does not belong to "
+                            f"the selected organization '{organization.name}'. Please select a "
+                            f"department that belongs to '{organization.name}'."
+                        )
+                    }
+                )
+        elif organization and not department:
+            raise forms.ValidationError(
+                {
+                    "department": (
+                        f"Please select a department from the organization '{organization.name}'."
+                    )
                 }
             )
-        }
+        elif department and not organization:
+            cleaned_data["organization"] = department.organization
+
+        return cleaned_data
+
+    def save(self, commit=True):
+        """
+        Save the designation without saving the organization field.
+        """
+        instance = super().save(commit=False)
+        if commit:
+            instance.save()
+        return instance
 
     class Media:
         """

@@ -115,6 +115,7 @@ venv.bak/
 # Vscode Settings #
 ###################
 .vscode/
+.kiro/
 
 # Spyder project settings #
 ###########################

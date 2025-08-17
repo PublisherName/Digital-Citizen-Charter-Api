@@ -31,6 +31,7 @@ dependencies = [
 [dependency-groups]
 dev = [
     "djlint>=1.36.4",
+    "faker>=37.5.3",
     "ruff>=0.12.9",
     "yamllint>=1.37.1",
 ]
