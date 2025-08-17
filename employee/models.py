@@ -7,17 +7,31 @@ from root.utils import UploadToPathAndRename
 
 
 class Employee(models.Model):
-    name = models.CharField(max_length=200)
-    organization = models.ForeignKey(Organization, on_delete=models.CASCADE)
-    department = models.ForeignKey(Department, on_delete=models.CASCADE)
     designation = models.ForeignKey(Designation, on_delete=models.CASCADE)
-    description = models.CharField(max_length=200, blank=True, null=True)
+    name = models.CharField(max_length=200)
+    description = models.TextField(blank=False)
     email = models.EmailField(unique=True, blank=True, null=True)
     contact_no = models.CharField(max_length=15)
     profile_picture = models.ImageField(
         upload_to=UploadToPathAndRename("profile_pictures"), blank=True, null=True
     )
     is_available = models.BooleanField(default=True)
+
+    @property
+    def organization(self):
+        """Return the organization this employee belongs to via designation."""
+        try:
+            return self.designation.department.organization if self.designation else None
+        except (AttributeError, models.ObjectDoesNotExist):
+            return None
+
+    @property
+    def department(self):
+        """Return the department this employee belongs to via designation."""
+        try:
+            return self.designation.department if self.designation else None
+        except (AttributeError, models.ObjectDoesNotExist):
+            return None
 
     def clean(self):
         self.validate_designation()
@@ -37,10 +51,6 @@ class Employee(models.Model):
         super().save(*args, **kwargs)
 
     def validate_designation(self):
-        if self.department.organization != self.organization:
-            raise ValidationError("Designation's department must match the selected organization.")
-        if self.designation.department != self.department:
-            raise ValidationError("Designation's must match the selected department.")
         if not self.designation.allow_multiple_employees and (
             Employee.objects.filter(designation=self.designation)
             .exclude(pk=self.pk if self.pk else None)
