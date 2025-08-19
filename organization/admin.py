@@ -1,9 +1,29 @@
-"""This file is used to register the models in the admin panel."""
-
+import nested_admin
 from django.contrib import admin
 
-from .forms import DesignationForm, OrganizationForm
-from .models import Department, Designation, Organization
+from .forms import (
+    DesignationForm,
+    OrganizationForm,
+)
+from .models import (
+    Department,
+    DepartmentTemplate,
+    Designation,
+    DesignationTemplate,
+    Organization,
+    OrganizationTemplate,
+)
+
+
+class DesignationTemplateInline(nested_admin.NestedTabularInline):
+    model = DesignationTemplate
+    extra = 1
+
+
+class DepartmentTemplateInline(nested_admin.NestedTabularInline):
+    model = DepartmentTemplate
+    extra = 1
+    inlines = [DesignationTemplateInline]
 
 
 @admin.register(Designation)
@@ -42,3 +62,14 @@ class DepartmentAdmin(admin.ModelAdmin):
     """
 
     list_display = ("name", "organization", "contact_no", "email", "is_active")
+
+
+@admin.register(OrganizationTemplate)
+class OrganizationTemplateAdmin(nested_admin.NestedModelAdmin):
+    """
+    OrganizationTemplateAdmin class is used to nest the admin panel for OrganizationTemplate model.
+    """
+
+    inlines = [DepartmentTemplateInline]
+    list_display = ("name", "is_active")
+    search_fields = ("name",)

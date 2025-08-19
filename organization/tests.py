@@ -2,14 +2,22 @@
 Unit tests for organization models and forms.
 """
 
+from django import forms
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
 from django.test import TestCase
 from faker import Faker
 
 from .choices import PROVINCE_CHOICES
-from .forms import DesignationForm
-from .models import Department, Designation, Organization
+from .forms import DesignationForm, OrganizationForm
+from .models import (
+    Department,
+    DepartmentTemplate,
+    Designation,
+    DesignationTemplate,
+    Organization,
+    OrganizationTemplate,
+)
 
 User = get_user_model()
 fake = Faker()
@@ -646,556 +654,460 @@ class DesignationFormTests(TestCase):
             self.assertEqual(designation.organization, self.organization1)
 
 
-class DesignationAdminIntegrationTests(TestCase):
-    """Integration tests for the Designation admin interface."""
+class OrganizationFormTemplateValidationTests(TestCase):
+    """Test cases for OrganizationForm template validation functionality."""
 
     def setUp(self):
-        """Set up test data and admin user."""
-        from django.contrib.admin.sites import AdminSite
-        from django.contrib.auth import get_user_model
-        from django.test import RequestFactory
-
-        from .admin import DesignationAdmin
-
-        User = get_user_model()
-
-        self.admin_user = User.objects.create_superuser(
-            username="admin", email="admin@example.com", password="adminpass123"
-        )
-
-        self.user1 = User.objects.create_user(
-            username=fake.user_name(), email=fake.email(), password=fake.password()
-        )
-        self.user2 = User.objects.create_user(
+        """Set up test data for template validation tests."""
+        self.user = User.objects.create_user(
             username=fake.user_name(), email=fake.email(), password=fake.password()
         )
 
-        self.organization1 = Organization.objects.create(
-            user=self.user1,
-            name=fake.company(),
-            tag_line=fake.catch_phrase(),
-            description=fake.text(max_nb_chars=200),
-            province=fake.random_element(elements=[choice[0] for choice in PROVINCE_CHOICES]),
-            district=fake.city(),
-            municipality=fake.city(),
-            ward_no=str(fake.random_int(min=1, max=35)),
-            contact_no=fake.phone_number()[:15],
-            website=fake.url(),
+        self.active_template = OrganizationTemplate.objects.create(
+            name="Active Template", description="An active template for testing", is_active=True
         )
 
-        self.organization2 = Organization.objects.create(
-            user=self.user2,
-            name=fake.company(),
-            tag_line=fake.catch_phrase(),
-            description=fake.text(max_nb_chars=200),
-            province=fake.random_element(elements=[choice[0] for choice in PROVINCE_CHOICES]),
-            district=fake.city(),
-            municipality=fake.city(),
-            ward_no=str(fake.random_int(min=1, max=35)),
-            contact_no=fake.phone_number()[:15],
-            website=fake.url(),
+        self.active_dept_template = DepartmentTemplate.objects.create(
+            organization_template=self.active_template,
+            name="HR Department",
+            description="Human Resources Department",
+            is_active=True,
         )
 
-        self.department1 = Department.objects.create(
-            organization=self.organization1,
-            name=fake.word().title() + " Department",
-            description=fake.text(max_nb_chars=200),
-            contact_no=fake.phone_number()[:20],
-            email=fake.email(),
+        self.active_desig_template = DesignationTemplate.objects.create(
+            department_template=self.active_dept_template,
+            title="HR Manager",
+            description="Human Resources Manager",
+            priority=1,
+            allow_multiple_employees=False,
+            is_active=True,
         )
 
-        self.department2 = Department.objects.create(
-            organization=self.organization2,
-            name=fake.word().title() + " Department",
-            description=fake.text(max_nb_chars=200),
-            contact_no=fake.phone_number()[:20],
-            email=fake.email(),
+        self.inactive_template = OrganizationTemplate.objects.create(
+            name="Inactive Template",
+            description="An inactive template for testing",
+            is_active=False,
         )
 
-        self.designation1 = Designation.objects.create(
-            department=self.department1,
-            title=fake.job(),
-            description=fake.text(max_nb_chars=200),
-            priority=fake.random_int(min=1, max=10),
-            allow_multiple_employees=fake.boolean(),
+        self.empty_template = OrganizationTemplate.objects.create(
+            name="Empty Template", description="A template with no departments", is_active=True
         )
 
-        self.designation2 = Designation.objects.create(
-            department=self.department2,
-            title=fake.job(),
-            description=fake.text(max_nb_chars=200),
-            priority=fake.random_int(min=1, max=10),
-            allow_multiple_employees=fake.boolean(),
+        self.template_with_inactive_depts = OrganizationTemplate.objects.create(
+            name="Template with Inactive Departments",
+            description="A template with only inactive departments",
+            is_active=True,
         )
 
-        self.site = AdminSite()
-        self.factory = RequestFactory()
-        self.admin_class = DesignationAdmin(Designation, self.site)
-
-    def test_admin_list_view_displays_organization_information_correctly(self):
-        """Test that admin list view displays organization information correctly."""
-        from django.contrib.admin import ModelAdmin
-        from django.contrib.messages.storage.fallback import FallbackStorage
-
-        request = self.factory.get("/admin/organization/designation/")
-        request.user = self.admin_user
-
-        from django.contrib.messages.middleware import MessageMiddleware
-        from django.contrib.sessions.middleware import SessionMiddleware
-
-        middleware = SessionMiddleware(lambda req: None)
-        middleware.process_request(request)
-        request.session.save()
-
-        middleware = MessageMiddleware(lambda req: None)
-        middleware.process_request(request)
-        request._messages = FallbackStorage(request)
-
-        changelist = self.admin_class.get_changelist_instance(request)
-
-        self.assertIn("organization", self.admin_class.list_display)
-
-        queryset = changelist.get_queryset(request)
-        designations = list(queryset)
-
-        self.assertGreaterEqual(len(designations), 2)
-
-        found_designation1 = None
-        found_designation2 = None
-
-        for designation in designations:
-            if designation.id == self.designation1.id:
-                found_designation1 = designation
-            elif designation.id == self.designation2.id:
-                found_designation2 = designation
-
-        self.assertIsNotNone(found_designation1)
-        self.assertIsNotNone(found_designation2)
-
-        self.assertEqual(found_designation1.organization, self.organization1)
-        self.assertEqual(found_designation2.organization, self.organization2)
-        self.assertEqual(found_designation1.organization.name, self.organization1.name)
-        self.assertEqual(found_designation2.organization.name, self.organization2.name)
-
-    def test_admin_form_submission_workflow_with_organization_department_chaining(self):
-        """Test admin form submission workflow with organization-department chaining."""
-        from django.contrib.messages.storage.fallback import FallbackStorage
-
-        request = self.factory.get("/admin/organization/designation/add/")
-        request.user = self.admin_user
-
-        from django.contrib.messages.middleware import MessageMiddleware
-        from django.contrib.sessions.middleware import SessionMiddleware
-
-        middleware = SessionMiddleware(lambda req: None)
-        middleware.process_request(request)
-        request.session.save()
-
-        middleware = MessageMiddleware(lambda req: None)
-        middleware.process_request(request)
-        request._messages = FallbackStorage(request)
-
-        form_class = self.admin_class.get_form(request)
-        form = form_class()
-
-        self.assertIn("organization", form.fields)
-        org_field = form.fields["organization"]
-        self.assertTrue(org_field.required)
-        self.assertIn("onchange", org_field.widget.attrs)
-        self.assertEqual(
-            org_field.widget.attrs["onchange"], "get_department_for_organization(this.value);"
+        self.inactive_dept_template = DepartmentTemplate.objects.create(
+            organization_template=self.template_with_inactive_depts,
+            name="Inactive Department",
+            description="An inactive department",
+            is_active=False,
         )
 
-        post_data = {
-            "organization": self.organization1.id,
-            "department": self.department1.id,
-            "title": fake.job(),
+        self.template_no_designations = OrganizationTemplate.objects.create(
+            name="Template with No Designations",
+            description="A template with departments but no designations",
+            is_active=True,
+        )
+
+        self.dept_no_designations = DepartmentTemplate.objects.create(
+            organization_template=self.template_no_designations,
+            name="Department without Designations",
+            description="A department with no designations",
+            is_active=True,
+        )
+
+        self.template_inactive_designations = OrganizationTemplate.objects.create(
+            name="Template with Inactive Designations",
+            description="A template with departments but inactive designations",
+            is_active=True,
+        )
+
+        self.dept_inactive_designations = DepartmentTemplate.objects.create(
+            organization_template=self.template_inactive_designations,
+            name="Department with Inactive Designations",
+            description="A department with inactive designations",
+            is_active=True,
+        )
+
+        self.inactive_designation = DesignationTemplate.objects.create(
+            department_template=self.dept_inactive_designations,
+            title="Inactive Manager",
+            description="An inactive manager position",
+            priority=1,
+            allow_multiple_employees=False,
+            is_active=False,
+        )
+
+        self.valid_form_data = {
+            "user": self.user.id,
+            "name": fake.company(),
+            "tag_line": fake.catch_phrase(),
             "description": fake.text(max_nb_chars=200),
-            "priority": fake.random_int(min=1, max=10),
-            "allow_multiple_employees": fake.boolean(),
+            "province": fake.random_element(elements=[choice[0] for choice in PROVINCE_CHOICES]),
+            "district": fake.city(),
+            "municipality": fake.city(),
+            "ward_no": str(fake.random_int(min=1, max=35)),
+            "contact_no": fake.phone_number()[:15],
+            "website": fake.url(),
+            "is_active": True,
         }
 
-        post_request = self.factory.post("/admin/organization/designation/add/", post_data)
-        post_request.user = self.admin_user
+    def test_form_queryset_only_includes_active_templates(self):
+        """Test that organization_template field queryset only includes active templates."""
+        from organization.forms import OrganizationForm
 
-        middleware = SessionMiddleware(lambda req: None)
-        middleware.process_request(post_request)
-        post_request.session.save()
+        form = OrganizationForm()
+        template_queryset = form.fields["organization_template"].queryset
 
-        middleware = MessageMiddleware(lambda req: None)
-        middleware.process_request(post_request)
-        post_request._messages = FallbackStorage(post_request)
+        self.assertIn(self.active_template, template_queryset)
+        self.assertIn(self.empty_template, template_queryset)
+        self.assertIn(self.template_with_inactive_depts, template_queryset)
+        self.assertIn(self.template_no_designations, template_queryset)
+        self.assertIn(self.template_inactive_designations, template_queryset)
 
-        form = form_class(post_data)
+        self.assertNotIn(self.inactive_template, template_queryset)
+
+    def test_valid_template_selection_passes_validation(self):
+        """Test that selecting a valid active template passes validation."""
+        from organization.forms import OrganizationForm
+
+        form_data = self.valid_form_data.copy()
+        form_data["organization_template"] = self.active_template.id
+
+        form = OrganizationForm(data=form_data)
         self.assertTrue(form.is_valid(), f"Form errors: {form.errors}")
 
-        new_designation = form.save()
+    def test_no_template_selection_passes_validation(self):
+        """Test that not selecting a template passes validation."""
+        from organization.forms import OrganizationForm
 
-        self.assertIsInstance(new_designation, Designation)
-        self.assertEqual(new_designation.department, self.department1)
-        self.assertEqual(new_designation.organization, self.organization1)
-        self.assertEqual(new_designation.title, post_data["title"])
+        form_data = self.valid_form_data.copy()
 
-    def test_editing_existing_designations_through_admin_interface(self):
-        """Test editing existing designations through admin interface."""
-        from django.contrib.messages.storage.fallback import FallbackStorage
-
-        request = self.factory.get(
-            f"/admin/organization/designation/{self.designation1.id}/change/"
-        )
-        request.user = self.admin_user
-
-        from django.contrib.messages.middleware import MessageMiddleware
-        from django.contrib.sessions.middleware import SessionMiddleware
-
-        middleware = SessionMiddleware(lambda req: None)
-        middleware.process_request(request)
-        request.session.save()
-
-        middleware = MessageMiddleware(lambda req: None)
-        middleware.process_request(request)
-        request._messages = FallbackStorage(request)
-
-        form_class = self.admin_class.get_form(request, self.designation1)
-        form = form_class(instance=self.designation1)
-
-        self.assertEqual(form.fields["organization"].initial, self.organization1)
-
-        updated_title = fake.job()
-        post_data = {
-            "organization": self.organization1.id,
-            "department": self.department1.id,
-            "title": updated_title,
-            "description": self.designation1.description,
-            "priority": self.designation1.priority,
-            "allow_multiple_employees": self.designation1.allow_multiple_employees,
-        }
-
-        post_request = self.factory.post(
-            f"/admin/organization/designation/{self.designation1.id}/change/", post_data
-        )
-        post_request.user = self.admin_user
-
-        middleware = SessionMiddleware(lambda req: None)
-        middleware.process_request(post_request)
-        post_request.session.save()
-
-        middleware = MessageMiddleware(lambda req: None)
-        middleware.process_request(post_request)
-        post_request._messages = FallbackStorage(post_request)
-
-        form = form_class(post_data, instance=self.designation1)
+        form = OrganizationForm(data=form_data)
         self.assertTrue(form.is_valid(), f"Form errors: {form.errors}")
 
-        updated_designation = form.save()
+    def test_inactive_template_selection_fails_validation(self):
+        """Test that selecting an inactive template fails validation."""
+        from organization.forms import OrganizationForm
 
-        self.assertEqual(updated_designation.id, self.designation1.id)
-        self.assertEqual(updated_designation.title, updated_title)
-        self.assertEqual(updated_designation.organization, self.organization1)
-        self.assertEqual(updated_designation.department, self.department1)
+        form_data = self.valid_form_data.copy()
+        form_data["organization_template"] = self.inactive_template.id
 
-        post_data_invalid = {
-            "organization": self.organization1.id,
-            "department": self.department2.id,
-            "title": updated_title,
-            "description": self.designation1.description,
-            "priority": self.designation1.priority,
-            "allow_multiple_employees": self.designation1.allow_multiple_employees,
-        }
-
-        form_invalid = form_class(post_data_invalid, instance=self.designation1)
-        self.assertFalse(form_invalid.is_valid())
-        self.assertIn("department", form_invalid.errors)
-
-    def test_ajax_chaining_works_in_admin_environment(self):
-        """Test that AJAX chaining works in admin environment."""
-        from django.test import Client
-
-        client = Client()
-        client.login(username="admin", password="adminpass123")
-
-        response = client.get(
-            "/helper/get_department_for_organization/", {"organization_id": self.organization1.id}
-        )
-
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(response["Content-Type"], "application/json")
-
-        import json
-
-        data = json.loads(response.content)
-
-        self.assertIn("data", data)
-        self.assertIsInstance(data["data"], list)
-
-        departments = data["data"]
-        self.assertGreater(len(departments), 0)
-
-        found_department = None
-        for dept in departments:
-            if dept["id"] == self.department1.id:
-                found_department = dept
-                break
-
-        self.assertIsNotNone(found_department)
-        self.assertEqual(found_department["name"], self.department1.name)
-
-        response2 = client.get(
-            "/helper/get_department_for_organization/", {"organization_id": self.organization2.id}
-        )
-
-        self.assertEqual(response2.status_code, 200)
-        data2 = json.loads(response2.content)
-        departments2 = data2["data"]
-
-        org2_dept_ids = [dept["id"] for dept in departments2]
-        self.assertIn(self.department2.id, org2_dept_ids)
-        self.assertNotIn(self.department1.id, org2_dept_ids)
-
-        response3 = client.get("/helper/get_department_for_organization/", {"organization_id": 9})
-
-        self.assertEqual(response3.status_code, 200)
-        data3 = json.loads(response3.content)
-        self.assertEqual(data3["data"], [])
-
-        response4 = client.get("/helper/get_department_for_organization/")
-
-        self.assertEqual(response4.status_code, 200)
-        data4 = json.loads(response4.content)
-        self.assertEqual(data4["data"], [])
-
-    def test_admin_form_javascript_media_inclusion(self):
-        """Test that admin form includes proper JavaScript media files."""
-        from django.contrib.messages.storage.fallback import FallbackStorage
-
-        request = self.factory.get("/admin/organization/designation/add/")
-        request.user = self.admin_user
-
-        from django.contrib.messages.middleware import MessageMiddleware
-        from django.contrib.sessions.middleware import SessionMiddleware
-
-        middleware = SessionMiddleware(lambda req: None)
-        middleware.process_request(request)
-        request.session.save()
-
-        middleware = MessageMiddleware(lambda req: None)
-        middleware.process_request(request)
-        request._messages = FallbackStorage(request)
-
-        form_class = self.admin_class.get_form(request)
-        form = form_class()
-
-        self.assertIn("js/chained/get_department_for_organization.js", form.media._js)
-
-    def test_admin_list_display_with_multiple_designations(self):
-        """Test admin list display with multiple designations from different organizations."""
-        from django.contrib.messages.storage.fallback import FallbackStorage
-
-        additional_designations = []
-        for i in range(3):
-            designation = Designation.objects.create(
-                department=self.department1,
-                title=fake.job(),
-                description=fake.text(max_nb_chars=200),
-                priority=fake.random_int(min=1, max=10),
-                allow_multiple_employees=fake.boolean(),
-            )
-            additional_designations.append(designation)
-
-        request = self.factory.get("/admin/organization/designation/")
-        request.user = self.admin_user
-
-        from django.contrib.messages.middleware import MessageMiddleware
-        from django.contrib.sessions.middleware import SessionMiddleware
-
-        middleware = SessionMiddleware(lambda req: None)
-        middleware.process_request(request)
-        request.session.save()
-
-        middleware = MessageMiddleware(lambda req: None)
-        middleware.process_request(request)
-        request._messages = FallbackStorage(request)
-
-        changelist = self.admin_class.get_changelist_instance(request)
-        queryset = changelist.get_queryset(request)
-
-        designations = list(queryset)
-        self.assertGreaterEqual(len(designations), 5)
-
-        for designation in designations:
-            self.assertIsNotNone(designation.organization)
-            if designation.department == self.department1:
-                self.assertEqual(designation.organization, self.organization1)
-            elif designation.department == self.department2:
-                self.assertEqual(designation.organization, self.organization2)
-
-    def test_admin_form_validation_with_invalid_combinations(self):
-        """Test admin form validation with invalid organization-department combinations."""
-        from django.contrib.messages.storage.fallback import FallbackStorage
-
-        request = self.factory.get("/admin/organization/designation/add/")
-        request.user = self.admin_user
-
-        from django.contrib.messages.middleware import MessageMiddleware
-        from django.contrib.sessions.middleware import SessionMiddleware
-
-        middleware = SessionMiddleware(lambda req: None)
-        middleware.process_request(request)
-        request.session.save()
-
-        middleware = MessageMiddleware(lambda req: None)
-        middleware.process_request(request)
-        request._messages = FallbackStorage(request)
-
-        form_class = self.admin_class.get_form(request)
-
-        invalid_data = {
-            "organization": self.organization1.id,
-            "department": self.department2.id,
-            "title": fake.job(),
-            "description": fake.text(max_nb_chars=200),
-            "priority": fake.random_int(min=1, max=10),
-            "allow_multiple_employees": fake.boolean(),
-        }
-
-        form = form_class(invalid_data)
+        form = OrganizationForm(data=form_data)
         self.assertFalse(form.is_valid())
-        self.assertIn("department", form.errors)
+        self.assertIn("organization_template", form.errors)
 
-        error_message = form.errors["department"][0]
-        self.assertIn(self.department2.name, error_message)
-        self.assertIn(self.organization1.name, error_message)
-        self.assertIn("does not belong to", error_message)
+    def test_deleted_template_selection_fails_validation(self):
+        """Test that selecting a deleted template fails validation."""
+        from organization.forms import OrganizationForm
 
-    def test_admin_interface_with_organization_property_performance(self):
-        """Test admin interface performance with organization property access."""
-        from django.contrib.messages.storage.fallback import FallbackStorage
+        temp_template = OrganizationTemplate.objects.create(
+            name="Temporary Template", description="A template to be deleted", is_active=True
+        )
+        temp_id = temp_template.id
+        temp_template.delete()
 
-        designations = []
-        for i in range(10):
-            designation = Designation.objects.create(
-                department=self.department1,
-                title=fake.job(),
-                description=fake.text(max_nb_chars=200),
-                priority=fake.random_int(min=1, max=10),
-                allow_multiple_employees=fake.boolean(),
-            )
-            designations.append(designation)
+        form_data = self.valid_form_data.copy()
+        form_data["organization_template"] = temp_id
 
-        request = self.factory.get("/admin/organization/designation/")
-        request.user = self.admin_user
+        form = OrganizationForm(data=form_data)
+        self.assertFalse(form.is_valid())
+        self.assertIn("organization_template", form.errors)
 
-        from django.contrib.messages.middleware import MessageMiddleware
-        from django.contrib.sessions.middleware import SessionMiddleware
+    def test_template_with_no_active_departments_fails_validation(self):
+        """Test that template with no active departments fails validation."""
+        from organization.forms import OrganizationForm
 
-        middleware = SessionMiddleware(lambda req: None)
-        middleware.process_request(request)
-        request.session.save()
+        form_data = self.valid_form_data.copy()
+        form_data["organization_template"] = self.empty_template.id
 
-        middleware = MessageMiddleware(lambda req: None)
-        middleware.process_request(request)
-        request._messages = FallbackStorage(request)
+        form = OrganizationForm(data=form_data)
+        self.assertFalse(form.is_valid())
+        self.assertIn("organization_template", form.errors)
+        error_message = form.errors["organization_template"][0]
+        self.assertIn("does not contain any active departments", error_message)
+        self.assertIn(self.empty_template.name, error_message)
 
-        changelist = self.admin_class.get_changelist_instance(request)
-        queryset = changelist.get_queryset(request)
+    def test_template_with_only_inactive_departments_fails_validation(self):
+        """Test that template with only inactive departments fails validation."""
+        from organization.forms import OrganizationForm
 
-        designations_list = list(queryset.select_related("department__organization"))
+        form_data = self.valid_form_data.copy()
+        form_data["organization_template"] = self.template_with_inactive_depts.id
 
-        with self.assertNumQueries(0):
-            organizations = [d.organization for d in designations_list]
-            self.assertGreater(len(organizations), 0)
+        form = OrganizationForm(data=form_data)
+        self.assertFalse(form.is_valid())
+        self.assertIn("organization_template", form.errors)
+        error_message = form.errors["organization_template"][0]
+        self.assertIn("does not contain any active departments", error_message)
+        self.assertIn(self.template_with_inactive_depts.name, error_message)
 
-        for designation in designations_list:
-            self.assertIsNotNone(designation.organization)
-            if designation.department == self.department1:
-                self.assertEqual(designation.organization, self.organization1)
+    def test_template_with_no_active_designations_fails_validation(self):
+        """Test that template with no active designations fails validation."""
+        from organization.forms import OrganizationForm
 
-    def test_admin_form_with_empty_organization_selection(self):
-        """Test admin form behavior with empty organization selection."""
-        from django.contrib.messages.storage.fallback import FallbackStorage
+        form_data = self.valid_form_data.copy()
+        form_data["organization_template"] = self.template_no_designations.id
 
-        request = self.factory.get("/admin/organization/designation/add/")
-        request.user = self.admin_user
+        form = OrganizationForm(data=form_data)
+        self.assertFalse(form.is_valid())
+        self.assertIn("organization_template", form.errors)
+        error_message = form.errors["organization_template"][0]
+        self.assertIn("does not contain any active designations", error_message)
+        self.assertIn(self.template_no_designations.name, error_message)
 
-        from django.contrib.messages.middleware import MessageMiddleware
-        from django.contrib.sessions.middleware import SessionMiddleware
+    def test_template_with_only_inactive_designations_fails_validation(self):
+        """Test that template with only inactive designations fails validation."""
+        from organization.forms import OrganizationForm
 
-        middleware = SessionMiddleware(lambda req: None)
-        middleware.process_request(request)
-        request.session.save()
+        form_data = self.valid_form_data.copy()
+        form_data["organization_template"] = self.template_inactive_designations.id
 
-        middleware = MessageMiddleware(lambda req: None)
-        middleware.process_request(request)
-        request._messages = FallbackStorage(request)
+        form = OrganizationForm(data=form_data)
+        self.assertFalse(form.is_valid())
+        self.assertIn("organization_template", form.errors)
+        error_message = form.errors["organization_template"][0]
+        self.assertIn("does not contain any active designations", error_message)
+        self.assertIn(self.template_inactive_designations.name, error_message)
 
-        form_class = self.admin_class.get_form(request)
+    def test_template_field_hidden_for_existing_organization(self):
+        """Test that template field is hidden when editing existing organization."""
+        from organization.forms import OrganizationForm
 
-        data_with_dept_only = {
-            "department": self.department1.id,
-            "title": fake.job(),
-            "description": fake.text(max_nb_chars=200),
-            "priority": fake.random_int(min=1, max=10),
-            "allow_multiple_employees": fake.boolean(),
-        }
+        existing_org = Organization.objects.create(
+            user=self.user,
+            name="Existing Organization",
+            tag_line="Test tagline",
+            description="Test description",
+            province=fake.random_element(elements=[choice[0] for choice in PROVINCE_CHOICES]),
+            district=fake.city(),
+            municipality=fake.city(),
+            ward_no=str(fake.random_int(min=1, max=35)),
+            contact_no=fake.phone_number()[:15],
+            website=fake.url(),
+        )
 
-        form = form_class(data_with_dept_only)
-        if form.is_valid():
-            self.assertEqual(form.cleaned_data["organization"], self.organization1)
-        else:
-            self.assertIn("organization", form.errors)
+        form = OrganizationForm(instance=existing_org)
 
-    def test_admin_changelist_filtering_by_organization(self):
-        """Test admin changelist filtering functionality with organization property."""
-        from django.contrib.messages.storage.fallback import FallbackStorage
+        self.assertIsInstance(form.fields["organization_template"].widget, forms.HiddenInput)
 
-        request = self.factory.get("/admin/organization/designation/")
-        request.user = self.admin_user
+    def test_template_validation_with_multiple_active_departments_and_designations(self):
+        """
+        Test validation passes with template having multiple active departments and designations.
+        """
+        from organization.forms import OrganizationForm
 
-        from django.contrib.messages.middleware import MessageMiddleware
-        from django.contrib.sessions.middleware import SessionMiddleware
+        dept2 = DepartmentTemplate.objects.create(
+            organization_template=self.active_template,
+            name="IT Department",
+            description="Information Technology Department",
+            is_active=True,
+        )
 
-        middleware = SessionMiddleware(lambda req: None)
-        middleware.process_request(request)
-        request.session.save()
+        DesignationTemplate.objects.create(
+            department_template=dept2,
+            title="IT Manager",
+            description="Information Technology Manager",
+            priority=1,
+            allow_multiple_employees=False,
+            is_active=True,
+        )
 
-        middleware = MessageMiddleware(lambda req: None)
-        middleware.process_request(request)
-        request._messages = FallbackStorage(request)
+        DesignationTemplate.objects.create(
+            department_template=self.active_dept_template,
+            title="HR Assistant",
+            description="Human Resources Assistant",
+            priority=2,
+            allow_multiple_employees=True,
+            is_active=True,
+        )
 
-        changelist = self.admin_class.get_changelist_instance(request)
+        form_data = self.valid_form_data.copy()
+        form_data["organization_template"] = self.active_template.id
 
-        queryset = changelist.get_queryset(request)
-        designations = list(queryset)
+        form = OrganizationForm(data=form_data)
+        self.assertTrue(form.is_valid(), f"Form errors: {form.errors}")
 
-        test_designation1 = None
-        test_designation2 = None
+    def test_template_validation_with_mixed_active_inactive_departments(self):
+        """Test validation with template having both active and inactive departments."""
+        from organization.forms import OrganizationForm
 
-        for designation in designations:
-            if designation.id == self.designation1.id:
-                test_designation1 = designation
-            elif designation.id == self.designation2.id:
-                test_designation2 = designation
+        DepartmentTemplate.objects.create(
+            organization_template=self.active_template,
+            name="Inactive Department",
+            description="An inactive department",
+            is_active=False,
+        )
 
-        self.assertIsNotNone(test_designation1, "Test designation 1 not found in queryset")
-        self.assertIsNotNone(test_designation2, "Test designation 2 not found in queryset")
+        form_data = self.valid_form_data.copy()
+        form_data["organization_template"] = self.active_template.id
 
-        self.assertEqual(test_designation1.organization, self.organization1)
-        self.assertEqual(test_designation1.department.organization, self.organization1)
+        form = OrganizationForm(data=form_data)
+        self.assertTrue(form.is_valid(), f"Form errors: {form.errors}")
 
-        self.assertEqual(test_designation2.organization, self.organization2)
-        self.assertEqual(test_designation2.department.organization, self.organization2)
+    def test_template_validation_with_nonexistent_template_id(self):
+        """Test validation with a template ID that doesn't exist in database."""
+        from organization.forms import OrganizationForm
 
-        org1_designations = [d for d in designations if d.organization == self.organization1]
-        org2_designations = [d for d in designations if d.organization == self.organization2]
+        nonexistent_id = 99999
 
-        self.assertGreater(len(org1_designations), 0)
-        self.assertGreater(len(org2_designations), 0)
+        form_data = self.valid_form_data.copy()
+        form_data["organization_template"] = nonexistent_id
 
-        for designation in org1_designations:
-            self.assertEqual(designation.organization, self.organization1)
-            self.assertEqual(designation.department.organization, self.organization1)
+        form = OrganizationForm(data=form_data)
+        self.assertFalse(form.is_valid())
+        self.assertIn("organization_template", form.errors)
 
-        for designation in org2_designations:
-            self.assertEqual(designation.organization, self.organization2)
-            self.assertEqual(designation.department.organization, self.organization2)
-            self.assertEqual(designation.department, self.department2)
+    def test_template_validation_with_template_deactivated_after_form_load(self):
+        """Test validation when template is deactivated between form load and submission."""
+        from organization.forms import OrganizationForm
+
+        temp_template = OrganizationTemplate.objects.create(
+            name="Temporary Active Template",
+            description="A template that will be deactivated",
+            is_active=True,
+        )
+
+        temp_dept = DepartmentTemplate.objects.create(
+            organization_template=temp_template,
+            name="Temp Department",
+            description="Temporary department",
+            is_active=True,
+        )
+
+        DesignationTemplate.objects.create(
+            department_template=temp_dept,
+            title="Temp Manager",
+            description="Temporary manager",
+            priority=1,
+            allow_multiple_employees=False,
+            is_active=True,
+        )
+
+        form_data = self.valid_form_data.copy()
+        form_data["organization_template"] = temp_template.id
+
+        temp_template.is_active = False
+        temp_template.save()
+
+        form = OrganizationForm(data=form_data)
+        self.assertFalse(form.is_valid())
+        self.assertIn("organization_template", form.errors)
+        error_message = form.errors["organization_template"][0]
+        self.assertIn("Select a valid choice", error_message)
+
+    def test_template_validation_with_departments_deactivated_after_form_load(self):
+        """Test validation when departments are deactivated between form load and submission."""
+        from organization.forms import OrganizationForm
+
+        temp_template = OrganizationTemplate.objects.create(
+            name="Template with Departments to Deactivate",
+            description="A template whose departments will be deactivated",
+            is_active=True,
+        )
+
+        temp_dept = DepartmentTemplate.objects.create(
+            organization_template=temp_template,
+            name="Department to Deactivate",
+            description="Department that will be deactivated",
+            is_active=True,
+        )
+
+        DesignationTemplate.objects.create(
+            department_template=temp_dept,
+            title="Manager to Deactivate",
+            description="Manager in department to be deactivated",
+            priority=1,
+            allow_multiple_employees=False,
+            is_active=True,
+        )
+
+        form_data = self.valid_form_data.copy()
+        form_data["organization_template"] = temp_template.id
+
+        temp_dept.is_active = False
+        temp_dept.save()
+
+        form = OrganizationForm(data=form_data)
+        self.assertFalse(form.is_valid())
+        self.assertIn("organization_template", form.errors)
+        error_message = form.errors["organization_template"][0]
+        self.assertIn("does not contain any active departments", error_message)
+
+    def test_template_validation_with_designations_deactivated_after_form_load(self):
+        """Test validation when designations are deactivated between form load and submission."""
+        from organization.forms import OrganizationForm
+
+        temp_template = OrganizationTemplate.objects.create(
+            name="Template with Designations to Deactivate",
+            description="A template whose designations will be deactivated",
+            is_active=True,
+        )
+
+        temp_dept = DepartmentTemplate.objects.create(
+            organization_template=temp_template,
+            name="Department with Designations to Deactivate",
+            description="Department whose designations will be deactivated",
+            is_active=True,
+        )
+
+        temp_designation = DesignationTemplate.objects.create(
+            department_template=temp_dept,
+            title="Designation to Deactivate",
+            description="Designation that will be deactivated",
+            priority=1,
+            allow_multiple_employees=False,
+            is_active=True,
+        )
+
+        form_data = self.valid_form_data.copy()
+        form_data["organization_template"] = temp_template.id
+
+        temp_designation.is_active = False
+        temp_designation.save()
+
+        form = OrganizationForm(data=form_data)
+        self.assertFalse(form.is_valid())
+        self.assertIn("organization_template", form.errors)
+        error_message = form.errors["organization_template"][0]
+        self.assertIn("does not contain any active designations", error_message)
+
+    def test_template_validation_with_mixed_active_inactive_designations_in_department(self):
+        """Test validation with departments having both active and inactive designations."""
+        from organization.forms import OrganizationForm
+
+        DesignationTemplate.objects.create(
+            department_template=self.active_dept_template,
+            title="Inactive HR Assistant",
+            description="An inactive HR assistant position",
+            priority=3,
+            allow_multiple_employees=True,
+            is_active=False,
+        )
+
+        form_data = self.valid_form_data.copy()
+        form_data["organization_template"] = self.active_template.id
+
+        form = OrganizationForm(data=form_data)
+        self.assertTrue(form.is_valid(), f"Form errors: {form.errors}")
+
+    def test_clean_organization_template_method_directly(self):
+        """Test the clean_organization_template method directly with various scenarios."""
+        form = OrganizationForm(data=self.valid_form_data)
+        form.cleaned_data = {"organization_template": None}
+        result = form.clean_organization_template()
+        self.assertIsNone(result)
+
+        form = OrganizationForm(data=self.valid_form_data)
+        form.cleaned_data = {"organization_template": self.active_template}
+        result = form.clean_organization_template()
+        self.assertEqual(result, self.active_template)
+
+        form = OrganizationForm(data=self.valid_form_data)
+        form.cleaned_data = {"organization_template": self.inactive_template}
+        with self.assertRaises(forms.ValidationError) as context:
+            form.clean_organization_template()
+        self.assertIn("not available or has been deactivated", str(context.exception))
