@@ -13,6 +13,7 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 import os
 from pathlib import Path
 
+from django.core.management.utils import get_random_secret_key
 from dotenv import load_dotenv
 
 dotenv_path = Path(".env")
@@ -26,12 +27,14 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.getenv("SECRET_KEY")
+SECRET_KEY = os.getenv("SECRET_KEY") or get_random_secret_key()
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.getenv("DEBUG") == "True"
+DEBUG = os.getenv("DEBUG", "True").lower() in ("true", "1", "yes")
 
-ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS").split(",")
+# Handle ALLOWED_HOSTS for Docker environments
+allowed_hosts_env = os.getenv("ALLOWED_HOSTS", "localhost,127.0.0.1,0.0.0.0")
+ALLOWED_HOSTS = [host.strip() for host in allowed_hosts_env.split(",") if host.strip()]
 
 
 # Application definition
@@ -81,11 +84,12 @@ WSGI_APPLICATION = "root.wsgi.application"
 
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
+DATABASE_PATH = os.getenv("DATABASE_PATH", str(BASE_DIR / "db.sqlite3"))
 
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.sqlite3",
+        "NAME": DATABASE_PATH,
     }
 }
 
@@ -126,7 +130,7 @@ USE_TZ = True
 
 STATIC_URL = "/static/"
 
-STATIC_ROOT = os.path.join(BASE_DIR, "public", "static")
+STATIC_ROOT = os.getenv("STATIC_ROOT", os.path.join(BASE_DIR, "public", "static"))
 
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, "static"),
@@ -136,7 +140,7 @@ STATICFILES_DIRS = [
 # Media files (Images)
 
 MEDIA_URL = "/media/"
-MEDIA_ROOT = os.path.join(BASE_DIR, "public", "media")
+MEDIA_ROOT = os.getenv("MEDIA_ROOT", os.path.join(BASE_DIR, "public", "media"))
 
 
 # Default primary key field type

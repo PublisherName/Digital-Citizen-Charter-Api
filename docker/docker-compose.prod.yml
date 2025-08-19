@@ -1,0 +1,60 @@
+services:
+  web:
+    build:
+      context: .
+      target: production
+    ports:
+      - "8000:8000"
+    volumes:
+      - django_db:/app/data
+      - django_media:/app/public/media
+      - django_static:/app/public/static
+    environment:
+      - DEBUG=0
+      - DJANGO_SETTINGS_MODULE=root.settings
+    env_file:
+      - .env.prod
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    depends_on:
+      db-init:
+        condition: service_completed_successfully
+    networks:
+      - django_network
+
+  db-init:
+    build:
+      context: .
+      target: production
+    volumes:
+      - django_db:/app/data
+      - django_media:/app/public/media
+      - django_static:/app/public/static
+    env_file:
+      - .env.prod
+    environment:
+      - DEBUG=0
+    restart: "no"
+    command: >
+      sh -c "uv run python manage.py migrate &&
+             uv run python manage.py collectstatic --noinput"
+    networks:
+      - django_network
+
+volumes:
+  django_db:
+    driver: local
+  django_media:
+    driver: local
+  django_static:
+    driver: local
+
+networks:
+  django_network:
+    driver: bridge
+    name: django_prod_network

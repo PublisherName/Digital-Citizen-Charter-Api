@@ -1,0 +1,88 @@
+# Git
+.git
+.gitignore
+.github
+
+# Python
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+.Python
+env
+pip-log.txt
+pip-delete-this-directory.txt
+.tox
+.coverage
+.coverage.*
+.pytest_cache
+nosetests.xml
+coverage.xml
+*.cover
+*.log
+.cache
+.mypy_cache
+.ruff_cache
+
+# Virtual environments
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Django
+*.log
+local_settings.py
+db.sqlite3
+db.sqlite3-journal
+media/
+
+# Static files (will be collected in container)
+public/static/
+
+# Documentation
+*.md
+docs/
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Development tools
+.pre-commit-config.yaml
+.yamllint
+
+# Docker
+Dockerfile*
+docker-compose*.yml
+.dockerignore
+
+# Kiro specs
+.kiro/
+
+# Lock files (copied separately)
+uv.lock
+
+# Temporary files
+*.tmp
+*.temp
