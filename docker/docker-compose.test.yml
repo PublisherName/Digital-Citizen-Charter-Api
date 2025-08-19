@@ -1,0 +1,11 @@
+services:
+  web:
+    build:
+      context: .
+      target: testing
+    ports:
+      - "8000:8000"
+    volumes:
+      - .:/app
+    environment:
+      - DEBUG=1

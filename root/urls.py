@@ -22,6 +22,7 @@ from django.urls import include, path
 from strawberry.django.views import GraphQLView
 
 from .schema import schema
+from .views import health_check
 
 admin.site.site_title = "Digital Citizen Charter (DCC) administration"
 admin.site.site_header = "Digital Citizen Charter (DCC)"
@@ -32,8 +33,10 @@ admin.site.description = "Digital Citizen Charter ( डिजिटल नाग
 urlpatterns = [
     path("admin/", admin.site.urls),
     path("helper/", include("organization.urls")),
+    path("health/", health_check, name="health_check"),
     path("", GraphQLView.as_view(schema=schema), name="graphql"),
 ]
 
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
-urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+if settings.DEBUG:
+    urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

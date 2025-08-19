@@ -1,0 +1,38 @@
+services:
+  web:
+    build:
+      context: .
+      target: production
+    ports:
+      - "8000:8000"
+    volumes:
+      - django_db:/app/data
+      - django_media:/app/public/media
+      - django_static:/app/public/static
+    environment:
+      - DEBUG=0
+      - DJANGO_SETTINGS_MODULE=root.settings
+    env_file:
+      - .env.prod
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    networks:
+      - django_network
+
+volumes:
+  django_db:
+    driver: local
+  django_media:
+    driver: local
+  django_static:
+    driver: local
+
+networks:
+  django_network:
+    driver: bridge
+    name: django_prod_network
