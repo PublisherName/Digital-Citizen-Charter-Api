@@ -20,6 +20,7 @@ requires-python = ">=3.11"
 keywords = ["Django", "Digital Citizen Charter", "Nepal", "Municipality", "Government"]
 dependencies = [
     "django>=5.2.5",
+    "django-nested-admin>=4.1.3",
     "dotenv>=0.9.9",
     "isort>=6.0.1",
     "pillow>=11.3.0",

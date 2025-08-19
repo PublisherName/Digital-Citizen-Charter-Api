@@ -99,3 +99,50 @@ class Designation(models.Model):
 
     def __str__(self):
         return str(self.title)
+
+
+class OrganizationTemplate(models.Model):
+    """
+    Stores organization templates to be copied into organization
+    """
+
+    name = models.CharField(max_length=200)
+    description = models.TextField()
+    is_active = models.BooleanField(default=True)
+
+    def __str__(self):
+        return self.name
+
+
+class DepartmentTemplate(models.Model):
+    """
+    Stores department templates to be copied into organizations.
+    """
+
+    organization_template = models.ForeignKey(
+        OrganizationTemplate, on_delete=models.CASCADE, related_name="department_templates"
+    )
+    name = models.CharField(max_length=200)
+    description = models.TextField()
+    is_active = models.BooleanField(default=True)
+
+    def __str__(self):
+        return self.name
+
+
+class DesignationTemplate(models.Model):
+    """
+    Stores designation templates to be copied into departments.
+    """
+
+    department_template = models.ForeignKey(
+        DepartmentTemplate, on_delete=models.CASCADE, related_name="designation_templates"
+    )
+    title = models.CharField(max_length=200)
+    description = models.TextField()
+    priority = models.IntegerField()
+    allow_multiple_employees = models.BooleanField(default=False)
+    is_active = models.BooleanField(default=True)
+
+    def __str__(self):
+        return self.title
