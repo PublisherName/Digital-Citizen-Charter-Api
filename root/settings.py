@@ -49,6 +49,7 @@ INSTALLED_APPS = [
     "nested_admin",
     "organization",
     "employee",
+    "service",
 ]
 
 MIDDLEWARE = [

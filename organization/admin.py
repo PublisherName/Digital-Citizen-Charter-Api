@@ -44,6 +44,7 @@ class OrganizationAdmin(admin.ModelAdmin):
     """
 
     form = OrganizationForm
+    search_fields = ("name", "tag_line", "district", "municipality")
 
     list_display = (
         "name",
