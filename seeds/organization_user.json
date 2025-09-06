@@ -1,0 +1,259 @@
+[
+{
+  "model": "organization.department",
+  "pk": 8,
+  "fields": {
+    "organization": 4,
+    "name": "Administration",
+    "description": "Handles records, correspondence, and overall coordination.",
+    "contact_no": "027-520065",
+    "email": "administration@ilammunicipality.local",
+    "is_active": true
+  }
+},
+{
+  "model": "organization.department",
+  "pk": 9,
+  "fields": {
+    "organization": 4,
+    "name": "Finance",
+    "description": "Manages budgeting, revenue collection, and expenditures.",
+    "contact_no": "027-520065",
+    "email": "finance@ilammunicipality.local",
+    "is_active": true
+  }
+},
+{
+  "model": "organization.department",
+  "pk": 10,
+  "fields": {
+    "organization": 4,
+    "name": "Engineering",
+    "description": "Plans, builds, and maintains roads, bridges, and public buildings.",
+    "contact_no": "027-520065",
+    "email": "engineering@ilammunicipality.local",
+    "is_active": true
+  }
+},
+{
+  "model": "organization.department",
+  "pk": 11,
+  "fields": {
+    "organization": 4,
+    "name": "Urban Planning",
+    "description": "Regulates land use, zoning, and development projects.",
+    "contact_no": "027-520065",
+    "email": "urbanplanning@ilammunicipality.local",
+    "is_active": true
+  }
+},
+{
+  "model": "organization.department",
+  "pk": 12,
+  "fields": {
+    "organization": 4,
+    "name": "Public Health",
+    "description": "Oversees sanitation, health programs, and disease control.",
+    "contact_no": "027-520065",
+    "email": "publichealth@ilammunicipality.local",
+    "is_active": true
+  }
+},
+{
+  "model": "organization.designation",
+  "pk": 7,
+  "fields": {
+    "organization": 4,
+    "department": 8,
+    "title": "Chief Administrative Officer",
+    "description": "Leads overall operations, supervises staff, ensures implementation of council decisions.",
+    "priority": 1,
+    "allow_multiple_employees": false
+  }
+},
+{
+  "model": "organization.designation",
+  "pk": 8,
+  "fields": {
+    "organization": 4,
+    "department": 8,
+    "title": "Administrative Officer",
+    "description": "Manages records, correspondence, and day-to-day office functions.",
+    "priority": 2,
+    "allow_multiple_employees": true
+  }
+},
+{
+  "model": "organization.designation",
+  "pk": 9,
+  "fields": {
+    "organization": 4,
+    "department": 9,
+    "title": "Finance Officer",
+    "description": "Prepares budgets, oversees revenue collection, and financial reporting.",
+    "priority": 1,
+    "allow_multiple_employees": false
+  }
+},
+{
+  "model": "organization.designation",
+  "pk": 10,
+  "fields": {
+    "organization": 4,
+    "department": 9,
+    "title": "Accountant",
+    "description": "Maintains accounts, handles payments, and assists in audits.",
+    "priority": 2,
+    "allow_multiple_employees": true
+  }
+},
+{
+  "model": "organization.organizationtemplate",
+  "pk": 3,
+  "fields": {
+    "name": "Municipality",
+    "description": "A municipality is a local government unit that manages a specific area such as a town or city. It provides public services, maintains infrastructure, enforces local laws, and collects taxes. It is governed by elected officials like a mayor and council.",
+    "is_active": true
+  }
+},
+{
+  "model": "organization.departmenttemplate",
+  "pk": 2,
+  "fields": {
+    "organization_template": 3,
+    "name": "Administration",
+    "description": "Handles records, correspondence, and overall coordination.",
+    "is_active": true
+  }
+},
+{
+  "model": "organization.departmenttemplate",
+  "pk": 3,
+  "fields": {
+    "organization_template": 3,
+    "name": "Finance",
+    "description": "Manages budgeting, revenue collection, and expenditures.",
+    "is_active": true
+  }
+},
+{
+  "model": "organization.departmenttemplate",
+  "pk": 4,
+  "fields": {
+    "organization_template": 3,
+    "name": "Engineering",
+    "description": "Plans, builds, and maintains roads, bridges, and public buildings.",
+    "is_active": true
+  }
+},
+{
+  "model": "organization.departmenttemplate",
+  "pk": 5,
+  "fields": {
+    "organization_template": 3,
+    "name": "Urban Planning",
+    "description": "Regulates land use, zoning, and development projects.",
+    "is_active": true
+  }
+},
+{
+  "model": "organization.departmenttemplate",
+  "pk": 6,
+  "fields": {
+    "organization_template": 3,
+    "name": "Public Health",
+    "description": "Oversees sanitation, health programs, and disease control.",
+    "is_active": true
+  }
+},
+{
+  "model": "organization.designationtemplate",
+  "pk": 2,
+  "fields": {
+    "organization_template": 3,
+    "department_template": 2,
+    "title": "Chief Administrative Officer",
+    "description": "Leads overall operations, supervises staff, ensures implementation of council decisions.",
+    "priority": 1,
+    "allow_multiple_employees": false,
+    "is_active": true
+  }
+},
+{
+  "model": "organization.designationtemplate",
+  "pk": 3,
+  "fields": {
+    "organization_template": 3,
+    "department_template": 2,
+    "title": "Administrative Officer",
+    "description": "Manages records, correspondence, and day-to-day office functions.",
+    "priority": 2,
+    "allow_multiple_employees": true,
+    "is_active": true
+  }
+},
+{
+  "model": "organization.designationtemplate",
+  "pk": 4,
+  "fields": {
+    "organization_template": 3,
+    "department_template": 3,
+    "title": "Finance Officer",
+    "description": "Prepares budgets, oversees revenue collection, and financial reporting.",
+    "priority": 1,
+    "allow_multiple_employees": false,
+    "is_active": true
+  }
+},
+{
+  "model": "organization.designationtemplate",
+  "pk": 5,
+  "fields": {
+    "organization_template": 3,
+    "department_template": 3,
+    "title": "Accountant",
+    "description": "Maintains accounts, handles payments, and assists in audits.",
+    "priority": 2,
+    "allow_multiple_employees": true,
+    "is_active": true
+  }
+},
+{
+  "model": "auth.user",
+  "pk": 1,
+  "fields": {
+    "password": "pbkdf2_sha256$1000000$LU6UJNPAGY1cLGRPBkUo6S$0kZlu4GlPb4FcJIXfUR+avMwuS2RDfS+aOy6alEb+sg=",
+    "last_login": null,
+    "is_superuser": true,
+    "username": "admin",
+    "first_name": "",
+    "last_name": "",
+    "email": "admin@admin.com",
+    "is_staff": true,
+    "is_active": true,
+    "date_joined": "2025-09-06T06:55:08.013Z",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "organization.organization",
+  "pk": 4,
+  "fields": {
+    "user": [
+      "admin"
+    ],
+    "name": "Ilam Municipality",
+    "tag_line": "Green Ilam",
+    "description": "Ilam Municipality",
+    "province": "Koshi",
+    "district": "Ilam",
+    "municipality": "Ilam Municipality",
+    "ward_no": "2",
+    "contact_no": "027-520065",
+    "website": "https://ilammun.gov.np/",
+    "logo": "",
+    "is_active": true
+  }
+}
+]

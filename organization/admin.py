@@ -1,4 +1,3 @@
-import nested_admin
 from django.contrib import admin
 
 from .forms import (
@@ -15,26 +14,24 @@ from .models import (
 )
 
 
-class DesignationTemplateInline(nested_admin.NestedTabularInline):
+class DepartmentInline(admin.StackedInline):
+    model = Department
+    extra = 0
+
+
+class DesignationInline(admin.StackedInline):
+    model = Designation
+    extra = 0
+
+
+class DesignationTemplateInline(admin.StackedInline):
     model = DesignationTemplate
-    extra = 1
+    extra = 0
 
 
-class DepartmentTemplateInline(nested_admin.NestedTabularInline):
+class DepartmentTemplateInline(admin.StackedInline):
     model = DepartmentTemplate
-    extra = 1
-    inlines = [DesignationTemplateInline]
-
-
-@admin.register(Designation)
-class DesignationAdmin(admin.ModelAdmin):
-    """
-    DesignationAdmin class is used to customize the admin panel for the Designation model.
-    """
-
-    form = DesignationForm
-
-    list_display = ("title", "description", "priority", "organization", "department")
+    extra = 0
 
 
 @admin.register(Organization)
@@ -54,23 +51,11 @@ class OrganizationAdmin(admin.ModelAdmin):
         "contact_no",
         "is_active",
     )
-
-
-@admin.register(Department)
-class DepartmentAdmin(admin.ModelAdmin):
-    """
-    DepartmentAdmin class is used to customize the admin panel for the Department model.
-    """
-
-    list_display = ("name", "organization", "contact_no", "email", "is_active")
+    inlines = [DepartmentInline, DesignationInline]
 
 
 @admin.register(OrganizationTemplate)
-class OrganizationTemplateAdmin(nested_admin.NestedModelAdmin):
-    """
-    OrganizationTemplateAdmin class is used to nest the admin panel for OrganizationTemplate model.
-    """
-
-    inlines = [DepartmentTemplateInline]
-    list_display = ("name", "is_active")
+class OrganizationTemplateAdmin(admin.ModelAdmin):
+    inlines = [DepartmentTemplateInline, DesignationTemplateInline]
+    list_display = ("name", "description", "is_active")
     search_fields = ("name",)
