@@ -54,6 +54,7 @@ class DesignationModelTests(TestCase):
         )
 
         self.designation = Designation.objects.create(
+            organization=self.organization,
             department=self.department,
             title=fake.job(),
             description=fake.text(max_nb_chars=200),
@@ -66,18 +67,6 @@ class DesignationModelTests(TestCase):
         self.assertEqual(self.designation.organization, self.organization)
         self.assertEqual(self.designation.organization.name, self.organization.name)
         self.assertEqual(self.designation.organization.id, self.organization.id)
-
-    def test_organization_property_returns_none_when_department_is_none(self):
-        """Test that organization property returns None when department is None."""
-        designation_without_dept = Designation(
-            title=fake.job(),
-            description=fake.text(max_nb_chars=200),
-            priority=fake.random_int(min=1, max=10),
-            allow_multiple_employees=fake.boolean(),
-        )
-        designation_without_dept.department = None
-
-        self.assertIsNone(designation_without_dept.organization)
 
     def test_organization_property_with_different_organizations(self):
         """Test organization property with multiple organizations."""
@@ -107,6 +96,7 @@ class DesignationModelTests(TestCase):
         )
 
         designation2 = Designation.objects.create(
+            organization=organization2,
             department=department2,
             title=fake.job(),
             description=fake.text(max_nb_chars=200),
@@ -123,6 +113,7 @@ class DesignationModelTests(TestCase):
         """Test model validation works with the new property-based structure."""
         title = fake.job()
         valid_designation = Designation(
+            organization=self.organization,
             department=self.department,
             title=title,
             description=fake.text(max_nb_chars=200),
@@ -169,6 +160,7 @@ class DesignationModelTests(TestCase):
     def test_full_clean_validation_with_property_structure(self):
         """Test full_clean() validation with the property-based structure."""
         valid_designation = Designation(
+            organization=self.organization,
             department=self.department,
             title=fake.job(),
             description=fake.text(max_nb_chars=200),
@@ -217,6 +209,7 @@ class DesignationModelTests(TestCase):
 
         self.assertEqual(self.designation.organization, self.organization)
 
+        self.designation.organization = organization2
         self.designation.department = department2
         self.designation.save()
 
@@ -243,6 +236,7 @@ class DesignationModelTests(TestCase):
         designations = []
         for _ in range(5):
             designation = Designation.objects.create(
+                organization=self.organization,
                 department=self.department,
                 title=fake.job(),
                 description=fake.text(max_nb_chars=200),
@@ -284,6 +278,7 @@ class DesignationModelTests(TestCase):
             )
 
             designation = Designation.objects.create(
+                organization=organization,
                 department=department,
                 title=fake.job(),
                 description=fake.text(max_nb_chars=200),
@@ -299,6 +294,7 @@ class DesignationModelTests(TestCase):
         for _ in range(10):
             priority = fake.random_int(min=1, max=100)
             designation = Designation(
+                organization=self.organization,
                 department=self.department,
                 title=fake.job(),
                 description=fake.text(max_nb_chars=200),
@@ -318,6 +314,7 @@ class DesignationModelTests(TestCase):
         for _ in range(10):
             allow_multiple = fake.boolean()
             designation = Designation.objects.create(
+                organization=self.organization,
                 department=self.department,
                 title=fake.job(),
                 description=fake.text(max_nb_chars=200),
@@ -333,6 +330,7 @@ class DesignationModelTests(TestCase):
         designations = []
         for _ in range(10):
             designation = Designation.objects.create(
+                organization=self.organization,
                 department=self.department,
                 title=fake.job(),
                 description=fake.text(max_nb_chars=200),
@@ -350,6 +348,7 @@ class DesignationModelTests(TestCase):
         """Test edge cases with faker-generated data."""
         long_title = fake.text(max_nb_chars=190)
         designation = Designation.objects.create(
+            organization=self.organization,
             department=self.department,
             title=long_title,
             description=fake.text(max_nb_chars=200),
@@ -359,6 +358,7 @@ class DesignationModelTests(TestCase):
         self.assertEqual(designation.organization, self.organization)
 
         min_priority_designation = Designation.objects.create(
+            organization=self.organization,
             department=self.department,
             title=fake.job(),
             description=fake.text(max_nb_chars=200),
@@ -368,6 +368,7 @@ class DesignationModelTests(TestCase):
         self.assertEqual(min_priority_designation.organization, self.organization)
 
         max_priority_designation = Designation.objects.create(
+            organization=self.organization,
             department=self.department,
             title=fake.job(),
             description=fake.text(max_nb_chars=200),
@@ -562,6 +563,7 @@ class DesignationFormTests(TestCase):
     def test_form_initialization_with_existing_designation(self):
         """Test form initialization with existing designation sets organization field."""
         existing_designation = Designation.objects.create(
+            organization=self.organization1,
             department=self.department1,
             title=fake.job(),
             description=fake.text(max_nb_chars=200),
@@ -675,6 +677,7 @@ class OrganizationFormTemplateValidationTests(TestCase):
         )
 
         self.active_desig_template = DesignationTemplate.objects.create(
+            organization_template=self.active_template,
             department_template=self.active_dept_template,
             title="HR Manager",
             description="Human Resources Manager",
@@ -733,6 +736,7 @@ class OrganizationFormTemplateValidationTests(TestCase):
         )
 
         self.inactive_designation = DesignationTemplate.objects.create(
+            organization_template=self.active_template,
             department_template=self.dept_inactive_designations,
             title="Inactive Manager",
             description="An inactive manager position",
@@ -908,6 +912,7 @@ class OrganizationFormTemplateValidationTests(TestCase):
         )
 
         DesignationTemplate.objects.create(
+            organization_template=self.active_template,
             department_template=dept2,
             title="IT Manager",
             description="Information Technology Manager",
@@ -917,6 +922,7 @@ class OrganizationFormTemplateValidationTests(TestCase):
         )
 
         DesignationTemplate.objects.create(
+            organization_template=self.active_template,
             department_template=self.active_dept_template,
             title="HR Assistant",
             description="Human Resources Assistant",
@@ -979,6 +985,7 @@ class OrganizationFormTemplateValidationTests(TestCase):
         )
 
         DesignationTemplate.objects.create(
+            organization_template=temp_template,
             department_template=temp_dept,
             title="Temp Manager",
             description="Temporary manager",
@@ -1017,6 +1024,7 @@ class OrganizationFormTemplateValidationTests(TestCase):
         )
 
         DesignationTemplate.objects.create(
+            organization_template=temp_template,
             department_template=temp_dept,
             title="Manager to Deactivate",
             description="Manager in department to be deactivated",
@@ -1055,6 +1063,7 @@ class OrganizationFormTemplateValidationTests(TestCase):
         )
 
         temp_designation = DesignationTemplate.objects.create(
+            organization_template=temp_template,
             department_template=temp_dept,
             title="Designation to Deactivate",
             description="Designation that will be deactivated",
@@ -1080,6 +1089,7 @@ class OrganizationFormTemplateValidationTests(TestCase):
         from organization.forms import OrganizationForm
 
         DesignationTemplate.objects.create(
+            organization_template=self.active_template,
             department_template=self.active_dept_template,
             title="Inactive HR Assistant",
             description="An inactive HR assistant position",

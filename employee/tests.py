@@ -43,6 +43,7 @@ class EmployeeModelTest(TestCase):
         )
 
         self.designation_single = Designation.objects.create(
+            organization=self.organization,
             department=self.department,
             title=fake.job(),
             description=fake.text(max_nb_chars=200),
@@ -51,6 +52,7 @@ class EmployeeModelTest(TestCase):
         )
 
         self.designation_multiple = Designation.objects.create(
+            organization=self.organization,
             department=self.department,
             title=fake.job(),
             description=fake.text(max_nb_chars=200),
@@ -343,6 +345,7 @@ class EmployeeFormValidationTest(TestCase):
         )
 
         self.desig1_dept1_org1 = Designation.objects.create(
+            organization=self.org1,
             department=self.dept1_org1,
             title=fake.job(),
             description=fake.text(max_nb_chars=200),
@@ -350,6 +353,7 @@ class EmployeeFormValidationTest(TestCase):
             allow_multiple_employees=True,
         )
         self.desig2_dept1_org1 = Designation.objects.create(
+            organization=self.org1,
             department=self.dept1_org1,
             title=fake.job(),
             description=fake.text(max_nb_chars=200),
@@ -357,6 +361,7 @@ class EmployeeFormValidationTest(TestCase):
             allow_multiple_employees=True,
         )
         self.desig1_dept2_org1 = Designation.objects.create(
+            organization=self.org1,
             department=self.dept2_org1,
             title=fake.job(),
             description=fake.text(max_nb_chars=200),
@@ -364,6 +369,7 @@ class EmployeeFormValidationTest(TestCase):
             allow_multiple_employees=True,
         )
         self.desig1_dept1_org2 = Designation.objects.create(
+            organization=self.org2,
             department=self.dept1_org2,
             title=fake.job(),
             description=fake.text(max_nb_chars=200),

@@ -3,7 +3,7 @@ from django.contrib import admin
 from .models import SampleDocments, Service, ServiceDetail
 
 
-class SampleDocumentInline(admin.TabularInline):
+class SampleDocumentInline(admin.StackedInline):
     model = SampleDocments
     extra = 1
     fields = ("name", "file", "is_active")
@@ -22,15 +22,6 @@ class ServiceAdmin(admin.ModelAdmin):
         if count == 0:
             return "All"
         return count
-
-
-@admin.register(SampleDocments)
-class SampleDocumentAdmin(admin.ModelAdmin):
-    list_display = ("name", "service_detail", "file", "is_active")
-    list_filter = ("service_detail",)
-    search_fields = ("name",)
-    autocomplete_fields = ("service_detail",)
-    list_select_related = ("service_detail",)
 
 
 @admin.register(ServiceDetail)

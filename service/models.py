@@ -68,8 +68,8 @@ class ServiceDetail(models.Model):
 
     class Meta:
         unique_together = ("organization", "service")
-        verbose_name = "Organization's Service Detail"
-        verbose_name_plural = "Organization's Service Details"
+        verbose_name = "Detail"
+        verbose_name_plural = "Details"
 
 
 class SampleDocments(models.Model):

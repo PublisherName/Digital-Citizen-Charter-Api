@@ -135,6 +135,7 @@ class OrganizationForm(forms.ModelForm):
 
                 for designation_template in department_template.designation_templates.all():
                     Designation.objects.create(
+                        organization=organization,
                         department=department,
                         title=designation_template.title,
                         description=designation_template.description,

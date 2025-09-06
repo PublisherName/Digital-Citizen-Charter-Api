@@ -40,13 +40,13 @@ ALLOWED_HOSTS = [host.strip() for host in allowed_hosts_env.split(",") if host.s
 # Application definition
 
 INSTALLED_APPS = [
+    "jazzmin",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-    "nested_admin",
     "organization",
     "employee",
     "service",
@@ -159,3 +159,48 @@ MEDIA_ROOT = os.getenv("MEDIA_ROOT", os.path.join(BASE_DIR, "public", "media"))
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+JAZZMIN_SETTINGS = {
+    "site_title": os.getenv("SITE_TITLE", "Digital Citizen Charter"),
+    "site_header": os.getenv("SITE_HEADER", "DCC Admin"),
+    "site_brand": os.getenv("SITE_BRAND", "Digital Citizen Charter"),
+    "site_logo": os.getenv("SITE_LOGO", default="images/logo.png"),
+    "login_logo": None,
+    "login_logo_dark": None,
+    "site_logo_classes": "img-circle",
+    "site_icon": None,
+    "welcome_sign": os.getenv("WELCOME_SIGN", "Welcome to the digital citizen charter admin"),
+    "user_avatar": None,
+    "topmenu_links": [
+        {"name": "Home", "url": "admin:index", "permissions": ["auth.view_user"]},
+        {"app": "organization"},
+        {"app": "employee"},
+        {"app": "service"},
+    ],
+    "show_sidebar": True,
+    "navigation_expanded": True,
+    "hide_apps": [],
+    "order_with_respect_to": ["auth", "organization", "employee", "service"],
+    "icons": {
+        # users icons
+        "auth.user": "fas fa-user",
+        "auth.group": "fas fa-users",
+        # organization icons
+        "organization.organization": "fas fa-building",
+        "organization.organizationtemplate": "fas fa-file-alt",
+        # Employye icons
+        "employee.employee": "fas fa-user",
+        # Service icons
+        "service.service": "fas fa-server",
+        "service.sampledocments": "fas fa-file-alt",
+        "service.servicedetail": "fas fa-info",
+    },
+    "default_icon_parents": "fas fa-chevron-circle-right",
+    "default_icon_children": "fas fa-circle",
+    "related_modal_active": False,
+    "custom_css": None,
+    "custom_js": None,
+    "use_google_fonts_cdn": True,
+    "show_ui_builder": os.getenv("SHOW_UI_BUILDER", False),
+    "changeform_format": "horizontal_tabs",
+}

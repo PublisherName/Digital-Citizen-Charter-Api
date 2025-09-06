@@ -73,21 +73,12 @@ class Designation(models.Model):
     Designation Model represents the post / designation of a employee.
     """
 
+    organization = models.ForeignKey(Organization, on_delete=models.CASCADE)
     department = models.ForeignKey(Department, on_delete=models.CASCADE)
     title = models.CharField(max_length=200, blank=False, null=False)
     description = models.TextField(blank=False, null=False)
     priority = models.IntegerField(blank=False, null=False)
     allow_multiple_employees = models.BooleanField(default=False)
-
-    @property
-    def organization(self):
-        """Return the organization this designation belongs to via department."""
-        try:
-            if hasattr(self, "department_id") and self.department_id:
-                return self.department.organization
-            return None
-        except (AttributeError, Department.DoesNotExist):
-            return None
 
     def clean(self):
         try:
@@ -113,6 +104,10 @@ class OrganizationTemplate(models.Model):
     def __str__(self):
         return self.name
 
+    class Meta:
+        verbose_name = "Template"
+        verbose_name_plural = "Templates"
+
 
 class DepartmentTemplate(models.Model):
     """
@@ -120,7 +115,9 @@ class DepartmentTemplate(models.Model):
     """
 
     organization_template = models.ForeignKey(
-        OrganizationTemplate, on_delete=models.CASCADE, related_name="department_templates"
+        OrganizationTemplate,
+        on_delete=models.CASCADE,
+        related_name="department_templates",
     )
     name = models.CharField(max_length=200)
     description = models.TextField()
@@ -135,8 +132,11 @@ class DesignationTemplate(models.Model):
     Stores designation templates to be copied into departments.
     """
 
+    organization_template = models.ForeignKey(OrganizationTemplate, on_delete=models.CASCADE)
     department_template = models.ForeignKey(
-        DepartmentTemplate, on_delete=models.CASCADE, related_name="designation_templates"
+        DepartmentTemplate,
+        on_delete=models.CASCADE,
+        related_name="designation_templates",
     )
     title = models.CharField(max_length=200)
     description = models.TextField()
